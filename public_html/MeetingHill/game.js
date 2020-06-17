@@ -20,6 +20,11 @@ class Game{
 		this.renderer;
 		this.animations = {};
 		this.assetsPath = 'assets/';
+
+		//jordan stuff
+		this.ring;
+		this.ringCanvas;
+		this.ringContext;
 		
 		this.remotePlayers = [];
 		this.remoteColliders = [];
@@ -88,10 +93,11 @@ class Game{
 	init() {
 		this.mode = this.modes.INITIALISING;
 
-		this.camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 10, 200000 );
+		this.camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 10, 800000 );
 		
 		this.scene = new THREE.Scene();
 		this.scene.background = new THREE.Color( 0x00a0f0 );
+		this.scene.fog = new THREE.FogExp2(0xfffaaa,0.0001);
 
 		const ambient = new THREE.AmbientLight( 0xaaaaaa );
         this.scene.add( ambient );
@@ -122,6 +128,8 @@ class Game{
 		this.player = new PlayerLocal(this);
 		
 		this.loadEnvironment(loader);
+		
+		this.createTextRing();
 		
 		this.speechBubble = new SpeechBubble(this, "", 150);
 		this.speechBubble.mesh.position.set(0, 350, 0);
@@ -165,7 +173,7 @@ class Game{
 					}
 				}
 			} );*/
-		jsonloader.load(`${this.assetsPath}/mountainDSNormals.json`, function(object){
+		jsonloader.load(`${this.assetsPath}/mountain2.json`, function(object){
 			object.scale.set(10,10,10);
             object.position.set(4000,-2100,-4000);
 			game.environment = object;
@@ -202,6 +210,111 @@ class Game{
 			}
 		});	
 	}
+
+	createTextRing(){
+		const game = this;
+		var geometry = new THREE.CylinderGeometry( 3500, 3500, 3000, 3200,16,1,true );
+		
+		var staticmaterial = new THREE.MeshBasicMaterial( {color: 0xffffa0, side:THREE.DoubleSide, transparent: true, opacity: .25, depthWrite: false} );
+		var staticRing = new THREE.Mesh( geometry, staticmaterial );
+		staticRing.position.set(-2000,4000,8000);
+
+		var textmat = new THREE.MeshBasicMaterial( {color: 0x0, side:THREE.DoubleSide, transparent: true, opacity: .9, fog: false} );
+		game.ring = new THREE.Mesh( geometry, textmat );
+		game.ring.position.set(-2000,4000,8000);
+		game.scene.add(staticRing);
+		game.scene.add( game.ring );
+
+		this.config = { font:'Roboto', size:35, padding:10, colour:'#0xffffa0', width:2048, height:512 };
+
+		this.ringCanvas = this.createRingCanvas(this.config.width,this.config.height);
+		this.ringContext = this.ringCanvas.getContext('2d');
+
+		var mat = new THREE.CanvasTexture(this.ringCanvas);
+		game.ring.material.map = mat;
+		game.ring.material.alphaMap = mat;
+		this.initRing('Meeting Hill');
+
+	}
+	initRing(msg){
+		
+		this.ringContext.font = `${this.config.size}pt ${this.config.font}`;
+		
+		this.ringContext.fillStyle = 'black';	
+		this.ringContext.fillRect(0, 0, this.config.width, this.config.height);
+		//this.wrapText(msg, g, this.config);
+		this.ringContext.textAlign = 'centre';
+		//g.fillStyle = 'white';
+		//g.fillText(msg, 512/2, 128);
+		
+		game.ring.material.map.needsUpdate = true;
+		
+	}
+
+	createRingCanvas(w, h) {
+		const canvas = document.createElement('canvas');
+		canvas.width = w;
+		canvas.height = h;
+		return canvas;
+	}
+
+	updateRingText(msg){
+
+		//var ringCanvas = document.getElementById('canvas');
+		//var ringCanvas = this.createOffscreenCanvas(2048,512);
+		//this.ringContext = this.ringCanvas.getContext('2d');
+		this.ringContext.font = `${this.config.size}pt ${this.config.font}`;
+		
+		//g.fillStyle = 'yellow';	
+		//g.fillRect(0, 0, this.config.width, this.config.height);
+		//this.wrapText(msg, g, this.config);
+		this.ringContext.textAlign = 'left';
+		this.ringContext.fillStyle = 'white';
+		this.ringContext.fillText(msg, Math.random()*this.config.width, this.config.height+5);
+		
+		game.ring.material.map.needsUpdate = true;
+		
+	}
+
+	updateRing(){
+		//ringCanvas = document.getElementById('canvas');
+		//var ringCanvas = this.createOffscreenCanvas(2048,512);
+		//this.ringContext = this.ringCanvas.getContext('2d');
+		this.ringContext.globalAlpha = 0.5
+		this.ringContext.fillStyle = 'rgb(0,0,0,0.0)';	
+		this.ringContext.fillRect(0, 0, this.config.width, this.config.height);
+		this.ringContext.drawImage(this.ringCanvas,0,-0.96);
+		game.ring.material.map.needsUpdate = true;
+	}
+	
+	wrapText(text, context){
+		const words = text.split(' ');
+        let line = '';
+		const lines = [];
+		const maxWidth = this.config.width - 2*this.config.padding;
+		const lineHeight = this.config.size + 8;
+		
+		words.forEach( function(word){
+			const testLine = `${line}${word} `;
+        	const metrics = context.measureText(testLine);
+        	const testWidth = metrics.width;
+			if (testWidth > maxWidth) {
+				lines.push(line);
+				line = `${word} `;
+			}else {
+				line = testLine;
+			}
+		});
+		
+		if (line != '') lines.push(line);
+		
+		let y = (this.config.height - lines.length * lineHeight)/2;
+		
+		lines.forEach( function(line){
+			context.fillText(line, 128, y);
+			y += lineHeight;
+		});
+	}
 	
 	playerControl(forward, turn){
 		turn = -turn;
@@ -229,7 +342,7 @@ class Game{
 	}
 	
 	createCameras(){
-		const offset = new THREE.Vector3(0, 80, 0);
+		
 		const front = new THREE.Object3D();
 		front.position.set(112, 100, 600);
 		front.parent = this.player.object;
@@ -239,6 +352,11 @@ class Game{
 		const chat = new THREE.Object3D();
 		chat.position.set(0, 200, -450);
 		chat.parent = this.player.object;
+
+		const globalchat = new THREE.Object3D();
+		globalchat.position.set(250, 1000, -10550);
+		globalchat.parent = this.player.object;
+		
 		const wide = new THREE.Object3D();
 		wide.position.set(178, 139, 1665);
 		wide.parent = this.player.object;
@@ -248,7 +366,7 @@ class Game{
 		const collect = new THREE.Object3D();
 		collect.position.set(40, 82, 94);
 		collect.parent = this.player.object;
-		this.cameras = { front, back, wide, overhead, collect, chat };
+		this.cameras = { front, back, wide, overhead, collect, chat, globalchat};
 		this.activeCamera = this.cameras.back;	
 	}
 	
@@ -371,6 +489,23 @@ class Game{
 			}
 		}
 	}
+
+	setGlobalChat(isOn){
+		const chat = document.getElementById('chat');
+
+		if (isOn){
+				//console.log(`set global chat on`);
+				//this.chatSocketId = player.id;
+				chat.style.bottom = '0px';
+				this.activeCamera = this.cameras.globalchat;
+		} else {
+				//console.log(`set global chat off`);
+				chat.style.bottom = '-50px';
+				this.activeCamera = this.cameras.back;
+		}
+	}
+
+	
 	
 	getRemotePlayerById(id){
 		if (this.remotePlayers===undefined || this.remotePlayers.length==0) return;
@@ -421,6 +556,8 @@ class Game{
 		
 		if (this.speechBubble!==undefined) this.speechBubble.show(this.camera.position);
 		
+		this.updateRing();
+
 		this.renderer.render( this.scene, this.camera );
 	}
 }
@@ -429,7 +566,7 @@ class Player{
 	constructor(game, options){
 		this.local = true;
 		let model, colour;
-		
+
 		const colours = ['Black', 'Brown', 'White'];
 		colour = colours[Math.floor(Math.random()*colours.length)];
 									
@@ -543,14 +680,19 @@ class Player{
 			}
 			if (!found) this.game.removePlayer(this);
 		}
+
 	}
 }
 
 class PlayerLocal extends Player{
 	constructor(game, model){
 		super(game, model);
-		
+	
 		const player = this;
+
+		let inRing;
+		player.inRing = false;
+
 		const socket = io.connect();
 		socket.on('setId', function(data){
 			player.id = data.id;
@@ -588,10 +730,22 @@ class PlayerLocal extends Player{
 			game.activeCamera = game.cameras.chat;
 			game.speechBubble.update(data.message);
 		});
+
+		socket.on('global message', function(data){
+			document.getElementById('chat').style.bottom = '0px';
+			console.log("global msg received", data.message);
+			const player = game.getRemotePlayerById(data.id);
+			//game.chatSocketId = player.id;
+			game.updateRingText(data.message);
+
+		});
         
 		$('#msg-form').submit(function(e){
-			socket.emit('chat message', { id:game.chatSocketId, message:$('#m').val() });
+			//socket.emit('chat message', { id:game.chatSocketId, message:$('#m').val() });
+			console.log("send global message: ", $('#m').val())
+			socket.emit('global message', { id:game.chatSocketId, message:$('#m').val() });
 			$('#m').val('');
+			
 			return false;
 		});
 		
@@ -644,7 +798,7 @@ class PlayerLocal extends Player{
 		
 		if (!blocked){
 			if (this.motion.forward>0){
-				const speed = (this.action=='Running') ? 500 : 150;
+				const speed = (this.action=='Running') ? 2500 : 500;
 				this.object.translateZ(dt*speed);
 			}else{
 				this.object.translateZ(-dt*30);
@@ -701,6 +855,14 @@ class PlayerLocal extends Player{
 		}
 		
 		this.object.rotateY(this.motion.turn*dt);
+
+		//check if inside chat ring
+		if (this.object.position.distanceTo(game.ring.position)<2800){
+			this.inRing = true;
+		} else {
+			this.inRing = false;
+		}
+		this.game.setGlobalChat(this.inRing);
 		
 		this.updateSocket();
 	}

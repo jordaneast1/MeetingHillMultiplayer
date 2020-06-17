@@ -45,6 +45,11 @@ io.sockets.on('connection', function(socket){
 		console.log(`chat message:${data.id} ${data.message}`);
 		io.to(data.id).emit('chat message', { id: socket.id, message: data.message });
 	})
+
+	socket.on('global message', function(data){
+		console.log(`global message:${data.id} ${data.message}`);
+		io.emit('global message', { id: socket.id, message: data.message });
+	})
 });
 
 http.listen(2002, function(){
