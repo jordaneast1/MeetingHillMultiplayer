@@ -47,7 +47,7 @@ io.sockets.on('connection', function(socket){
 	})
 
 	socket.on('global message', function(data){
-		console.log(`global message:${data.id} ${data.message}`);
+		console.log(`global message from ${socket.id}: ${data.message}`);
 		io.emit('global message', { id: socket.id, message: data.message });
 	})
 });
