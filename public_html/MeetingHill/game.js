@@ -100,7 +100,8 @@ class Game {
 
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x00a0f0);
-    this.scene.fog = new THREE.FogExp2(0xfffaaa, 0.0001);
+    //this.scene.fog = new THREE.FogExp2(0xfffaaa, 0.0001);
+    //this.scene.fog = new THREE.FogExp2(0xffffff, 0.0001);
 
     const ambient = new THREE.AmbientLight(0xaaaaaa);
     this.scene.add(ambient);
@@ -131,6 +132,7 @@ class Game {
     this.player = new PlayerLocal(this);
 
     this.loadEnvironment(loader);
+
 
 	this.createTextRing();
 	this.initSfx();
@@ -165,6 +167,8 @@ class Game {
 
     window.addEventListener("resize", () => game.onWindowResize(), false);
   }
+
+
 
   //sound
   initSfx() {
@@ -231,9 +235,10 @@ class Game {
 					}
 				}
 			} );*/
-    jsonloader.load(`${this.assetsPath}/mountain2.json`, function (object) {
+    jsonloader.load(`${this.assetsPath}/mountain4.json`, function (object) {
       object.scale.set(10, 10, 10);
-      object.position.set(4000, -2100, -4000);
+      object.position.set(-16000, -2000, 15000);
+      object.rotation.set(0, 160, 0);
       game.environment = object;
       game.colliders = [object];
       game.scene.add(object);
@@ -242,21 +247,66 @@ class Game {
       tloader.setPath(`${game.assetsPath}/images/`);
 
       var textureCube = tloader.load([
-        "px.jpg",
-        "nx.jpg",
-        "py.jpg",
-        "ny.jpg",
-        "pz.jpg",
-        "nz.jpg",
+        "px.png",
+        "nx.png",
+        "py.png",
+        "ny.png",
+        "pz.png",
+        "nz.png",
       ]);
 
       game.scene.background = textureCube;
 
+
       game.loadNextAnim(loader);
     });
+    //Pats
+    //var pivotPoint = new THREE.Object3D();
+
+
+    jsonloader.load(`${this.assetsPath}/HDRITerrain.json`, function (object) {
+      object.scale.set(200000, 200000, 200000);
+      object.position.set(-20,2000,-20);
+      game.scene.add(object);
+    });
+
+    jsonloader.load(`${this.assetsPath}/CloudHemisphere.json`, function (object) {
+     // object.add(pivotPoint)
+      object.scale.set(300, 300, 300);
+      game.scene.add(object);
+
+      var RotationSpeed = 5;
+      function cloudRotator() {
+      
+        object.rotation.y -= RotationSpeed *10; 
+      
+      }
+      
+cloudRotator()
+
+     });
+/*
+    function cloudRotator() {
+      var time = Date.now() *0.0005;
+
+      
+      object.rotation.y = Math.cos( time * 7 ) * 3;
+
+  }
+
+    cloudRotator()
+*/
+
+
+
+
+
+
+
   }
 
   loadNextAnim(loader) {
+
     let anim = this.anims.pop();
     const game = this;
     loader.load(`${this.assetsPath}fbx/anims/${anim}.fbx`, function (object) {
