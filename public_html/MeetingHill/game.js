@@ -45,13 +45,11 @@ class Game {
 
     const game = this;
     this.anims = [
+      //"Idle",
       "Walking",
-      "Walking Backwards",
+      "WalkingBackwards",
       "Turn",
-      "Running",
-      "Pointing",
-      "Talking",
-      "Pointing Gesture",
+	    "Running",
     ];
 
     const options = {
@@ -399,8 +397,8 @@ class Game {
       if (this.player.action != "Walking" && this.player.action != "Running")
         this.player.action = "Walking";
     } else if (forward < -0.3) {
-      if (this.player.action != "Walking Backwards")
-        this.player.action = "Walking Backwards";
+      if (this.player.action != "WalkingBackwards")
+        this.player.action = "WalkingBackwards";
     } else {
       forward = 0;
       if (Math.abs(turn) > 0.1) {
@@ -424,21 +422,21 @@ class Game {
     front.position.set(112, 100, 600);
     front.parent = this.player.object;
     const back = new THREE.Object3D();
-    back.position.set(0, 300, -1050);
+    back.position.set(0, 600, -1050);
     back.parent = this.player.object;
     const chat = new THREE.Object3D();
-    chat.position.set(0, 200, -450);
+    chat.position.set(0, 500, -450);
     chat.parent = this.player.object;
 
     const globalchat = new THREE.Object3D();
-    globalchat.position.set(250, 1000, -10550);
+    globalchat.position.set(250, 1000, -15550);
     globalchat.parent = this.player.object;
 
     const wide = new THREE.Object3D();
-    wide.position.set(178, 139, 1665);
+    wide.position.set(178, 439, 1665);
     wide.parent = this.player.object;
     const overhead = new THREE.Object3D();
-    overhead.position.set(0, 400, 0);
+    overhead.position.set(0, 500, 0);
     overhead.parent = this.player.object;
     const collect = new THREE.Object3D();
     collect.position.set(40, 82, 94);
@@ -650,6 +648,8 @@ class Game {
       const pos = this.player.object.position.clone();
       if (this.cameras.active == this.cameras.chat) {
         pos.y += 200;
+      } else if (this.cameras.active == this.cameras.globalchat) {
+        pos.y += 1800;
       } else {
         pos.y += 300;
       }
@@ -679,23 +679,9 @@ class Player {
     colour = colours[Math.floor(Math.random() * colours.length)];
 
     if (options === undefined) {
-      const people = [
-        "BeachBabe",
-        "BusinessMan",
-        "Doctor",
-        "FireFighter",
-        "Housewife",
-        "Policeman",
-        "Prostitute",
-        "Punk",
-        "RiotCop",
-        "Roadworker",
-        "Robber",
-        "Sheriff",
-        "Streetman",
-        "Waitress",
-      ];
-      model = people[Math.floor(Math.random() * people.length)];
+		const people =['Idle'];// ['FireFighter'];
+	  //model = people[Math.floor(Math.random() * people.length)];
+	  model = people[0];
     } else if (typeof options == "object") {
       this.local = false;
       this.options = options;
@@ -743,6 +729,7 @@ class Player {
       player.object = new THREE.Object3D();
       player.object.position.set(-1700, 1250, 4000);
       player.object.rotation.set(0, -45, 0);
+      player.object.scale.set(.45,.45,.45);
 
       player.object.add(object);
       if (player.deleted === undefined) game.scene.add(player.object);
@@ -809,7 +796,10 @@ class Player {
         this.action = data.action;
         found = true;
       }
-      if (!found) this.game.removePlayer(this);
+      if (!found){
+        console.log("remove player ", this.game.remoteData.id)
+        this.game.removePlayer(this);  
+      } 
     }
   }
 }

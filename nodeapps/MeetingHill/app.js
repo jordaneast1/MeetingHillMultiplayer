@@ -21,7 +21,7 @@ io.sockets.on('connection', function(socket){
     });	
 	
 	socket.on('init', function(data){
-		console.log(`socket.init ${data.model}`);
+		console.log(`socket.init ${data.model}, ${data.colour}`);
 		socket.userData.model = data.model;
 		socket.userData.colour = data.colour;
 		socket.userData.x = data.x;
@@ -61,9 +61,10 @@ setInterval(function(){
     let pack = [];
 	
     for(let id in io.sockets.sockets){
-        const socket = nsp.connected[id];
+		const socket = nsp.connected[id];
 		//Only push sockets that have been initialised
-		if (socket.userData.model!==undefined){
+		if (socket.userData.colour!==undefined){
+			//console.log("set remote data", socket.id);
 			pack.push({
 				id: socket.id,
 				model: socket.userData.model,
@@ -75,7 +76,7 @@ setInterval(function(){
 				pb: socket.userData.pb,
 				action: socket.userData.action
 			});    
-		}
+		} 
     }
 	if (pack.length>0) io.emit('remoteData', pack);
 }, 40);

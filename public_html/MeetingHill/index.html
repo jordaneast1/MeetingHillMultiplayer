@@ -74,6 +74,10 @@
 		</div>
 
 		<audio id="azuracast" autoplay="true" name="media" volume="0.1" crossorigin="anonymous"><source src="https://demo.azuracast.com/radio/8000/radio.mp3" type="audio/mpeg"></audio>
+		
+			<div id="overlay">
+				<button id="startButton">Play</button>
+			</div>
 
 		<div id="chat">
 			<form id="msg-form" action="">
@@ -81,7 +85,6 @@
     		</form>
 		</div>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r99/three.min.js"></script>
-		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.10/Tone.js"></script> -->
 		<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 		<script src="/socket.io/socket.io.js"></script>
 		
@@ -91,8 +94,16 @@
 		<script src="libs/toon3d.js"></script>
 		<script src="game.js"></script>
 		<script>
+			var startButton = document.getElementById( 'startButton' );
+			//startButton.addEventListener( 'click', init );
 			var game;
+
 			document.addEventListener("DOMContentLoaded", function(){ game = new Game(); });
+			//function init() {
+				var overlay = document.getElementById( 'overlay' );
+				overlay.remove();
+			//	game = new Game(); 
+			//};
 		</script>
 		<!-- <canvas id="canvas" height="256" width="1024"></canvas> -->
 	</body>
