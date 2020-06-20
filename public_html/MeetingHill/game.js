@@ -69,7 +69,7 @@ class Game {
     this.anims.forEach(function (anim) {
       options.assets.push(`${game.assetsPath}fbx/anims/${anim}.fbx`);
     });
-    //options.assets.push(`${game.assetsPath}fbx/TerrainWProxy.fbx`);
+    options.assets.push(`${game.assetsPath}mountain2.json`);
 
     this.mode = this.modes.PRELOAD;
 
@@ -235,7 +235,7 @@ class Game {
 					}
 				}
 			} );*/
-    jsonloader.load(`${this.assetsPath}/mountain4.json`, function (object) {
+    jsonloader.load(`${this.assetsPath}/mountain2.json`, function (object) {
       object.scale.set(10, 10, 10);
       object.position.set(-16000, -2000, 15000);
       object.rotation.set(0, 160, 0);
