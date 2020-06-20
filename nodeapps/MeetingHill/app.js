@@ -52,8 +52,8 @@ io.sockets.on('connection', function(socket){
 	})
 });
 
-http.listen(2003, function(){
-  console.log('listening on *:2003');
+http.listen(8080, function(){
+  console.log('listening on *:8080');
 });
 
 setInterval(function(){

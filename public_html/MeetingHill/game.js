@@ -69,7 +69,7 @@ class Game {
     this.anims.forEach(function (anim) {
       options.assets.push(`${game.assetsPath}fbx/anims/${anim}.fbx`);
     });
-    options.assets.push(`${game.assetsPath}fbx/TerrainWProxy.fbx`);
+    //options.assets.push(`${game.assetsPath}fbx/TerrainWProxy.fbx`);
 
     this.mode = this.modes.PRELOAD;
 
@@ -95,7 +95,7 @@ class Game {
       45,
       window.innerWidth / window.innerHeight,
       10,
-      800000
+      8000
     );
 
     this.scene = new THREE.Scene();
@@ -240,7 +240,7 @@ class Game {
       object.position.set(-16000, -2000, 15000);
       object.rotation.set(0, 160, 0);
       game.environment = object;
-      game.colliders = [object];
+      game.colliders = [];
       game.scene.add(object);
 
       const tloader = new THREE.CubeTextureLoader();
@@ -777,7 +777,7 @@ class Player {
       );
 
       player.object = new THREE.Object3D();
-      player.object.position.set(-1700, 2050, 4000);
+      player.object.position.set(-1700, 50, 4000);
       player.object.rotation.set(0, -45, 0);
       player.object.scale.set(.45,.45,.45);
 
