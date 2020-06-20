@@ -69,7 +69,7 @@ class Game {
     this.anims.forEach(function (anim) {
       options.assets.push(`${game.assetsPath}fbx/anims/${anim}.fbx`);
     });
-    options.assets.push(`${game.assetsPath}fbx/town.fbx`);
+    options.assets.push(`${game.assetsPath}fbx/TerrainWProxy.fbx`);
 
     this.mode = this.modes.PRELOAD;
 
@@ -777,7 +777,7 @@ class Player {
       );
 
       player.object = new THREE.Object3D();
-      player.object.position.set(-1700, 1250, 4000);
+      player.object.position.set(-1700, 2050, 4000);
       player.object.rotation.set(0, -45, 0);
       player.object.scale.set(.45,.45,.45);
 
