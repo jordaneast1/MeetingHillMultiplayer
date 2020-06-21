@@ -1,6 +1,11 @@
 class Game {
   constructor() {
+    
     if (!Detector.webgl) Detector.addGetWebGLMessage();
+
+    this.stats = new Stats();
+    this.stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+    document.body.appendChild( this.stats.dom );
 
     this.modes = Object.freeze({
       NONE: Symbol("none"),
@@ -54,12 +59,12 @@ class Game {
 
     const options = {
       assets: [
-        `${this.assetsPath}images/nx.jpg`,
-        `${this.assetsPath}images/px.jpg`,
-        `${this.assetsPath}images/ny.jpg`,
-        `${this.assetsPath}images/py.jpg`,
-        `${this.assetsPath}images/nz.jpg`,
-        `${this.assetsPath}images/pz.jpg`,
+        `${this.assetsPath}images/nx.png`,
+        `${this.assetsPath}images/px.png`,
+        `${this.assetsPath}images/ny.png`,
+        `${this.assetsPath}images/py.png`,
+        `${this.assetsPath}images/nz.png`,
+        `${this.assetsPath}images/pz.png`,
       ],
       oncomplete: function () {
 		game.init();
@@ -69,7 +74,14 @@ class Game {
     this.anims.forEach(function (anim) {
       options.assets.push(`${game.assetsPath}fbx/anims/${anim}.fbx`);
     });
-    options.assets.push(`${game.assetsPath}mountain2.json`);
+    options.assets.push(`${game.assetsPath}fbx/people/Idle.fbx`);
+
+    options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainWCollider.obj`);
+    options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainTextureBaked.jpg`);
+
+    //options.assets.push(`${this.assetsPath}/HDRITerrain.json`);
+    //options.assets.push(`${this.assetsPath}/CloudHemisphere.json`);
+
 
     this.mode = this.modes.PRELOAD;
 
@@ -119,8 +131,8 @@ class Game {
     light.shadow.camera.right = light.shadow.camera.top = lightSize;
 
     light.shadow.bias = 0.0039;
-    light.shadow.mapSize.width = 1024;
-    light.shadow.mapSize.height = 1024;
+    light.shadow.mapSize.width = 2048;
+    light.shadow.mapSize.height = 2048;
 
     this.sun = light;
     this.scene.add(light);
@@ -134,11 +146,12 @@ class Game {
     this.loadEnvironment(loader);
 
 
-	this.createTextRing();
+  this.createTextRing();
+  this.initChat();
 	this.initSfx();
 
-    this.speechBubble = new SpeechBubble(this, "", 150);
-    this.speechBubble.mesh.position.set(0, 350, 0);
+    //this.speechBubble = new SpeechBubble(this, "", 150);
+    //this.speechBubble.mesh.position.set(0, 350, 0);
 
     this.joystick = new JoyStick({
       onMove: this.playerControl,
@@ -194,10 +207,10 @@ class Game {
   }
 
   initSpeakers(){
-	var geometry = new THREE.BoxGeometry( 100, 100, 100 );
+	var geometry = new THREE.BoxGeometry( 10, 10, 10 );
 	var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
 	var cube = new THREE.Mesh( geometry, material );
-	cube.position.set(-3500, 1500, 4000);
+	cube.position.set(-35, 15, 40);
 
 	if (this.radioElement != null){
 		console.log("found elem")
@@ -235,15 +248,66 @@ class Game {
 					}
 				}
 			} );*/
-    jsonloader.load(`${this.assetsPath}/mountain2.json`, function (object) {
-      object.scale.set(10, 10, 10);
-      object.position.set(-16000, -2000, 15000);
-      object.rotation.set(0, 160, 0);
-      game.environment = object;
-      game.colliders = [];
-      game.scene.add(object);
+    // jsonloader.load(`${this.assetsPath}/mountain4.json`, function (object) {
+    //   object.scale.set(2, 2, 2);
+    //   object.position.set(-1500, -800, 1500);
+    //   object.rotation.set(0, 160, 0);
+    //   game.environment = object;
+    //   game.colliders = [];
+    //   game.scene.add(object);
 
-      const tloader = new THREE.CubeTextureLoader();
+    //   const tloader = new THREE.CubeTextureLoader();
+    //   tloader.setPath(`${game.assetsPath}/images/`);
+
+    //   var textureCube = tloader.load([
+    //     "px.png",
+    //     "nx.png",
+    //     "py.png",
+    //     "ny.png",
+    //     "pz.png",
+    //     "nz.png",
+    //   ]);
+
+    //   game.scene.background = textureCube;
+
+
+    //   game.loadNextAnim(loader);
+    // });
+    game.colliders = [];
+
+    var manager = new THREE.LoadingManager(); 
+
+    const objLoader = new THREE.OBJLoader();
+
+    objLoader.load('assets/TerrainOBJ/TerrainWCollider.obj', function (object) {
+        object.scale.set(2, 2, 2);
+        object.position.set(0, 0, 0);
+        object.rotation.set(0, 160, 0);
+        game.environment = object;
+        game.scene.add(object);
+        // object.materials = materials;
+
+        object.traverse( function ( child ) {
+          if ( child.isMesh ) {
+            if (child.name.startsWith("proxy")){
+              game.colliders.push(child);
+              // console.log(child.material.visible)
+              child.material.visible = false;
+              
+            }else{
+              if (child.name.startsWith("Polygon_Reduction")){
+                console.log(child.name);
+                var texture = new THREE.TextureLoader().load("assets/TerrainOBJ/TerrainTextureBaked.jpg" );
+                child.material = new THREE.MeshStandardMaterial({});
+                child.material.map = texture;                
+              } 
+              child.receiveShadow = true;
+            }
+          }
+        } );
+    });
+
+    const tloader = new THREE.CubeTextureLoader();
       tloader.setPath(`${game.assetsPath}/images/`);
 
       var textureCube = tloader.load([
@@ -259,32 +323,26 @@ class Game {
 
 
       game.loadNextAnim(loader);
-    });
-    //Pats
-    //var pivotPoint = new THREE.Object3D();
 
+  //  jsonloader.load(`${this.assetsPath}/HDRITerrain.json`, function (object) {
+  //     object.scale.set(200000, 200000, 200000);
+  //     object.position.set(-20,2000,-20);
+  //     game.scene.add(object);
+  //   });
+    
+    // jsonloader.load(`${this.assetsPath}/CloudHemisphere.json`, function (object) {
+    //  // object.add(pivotPoint)
+    //   object.scale.set(300, 300, 300);
+    //   game.scene.add(object);
 
-    jsonloader.load(`${this.assetsPath}/HDRITerrain.json`, function (object) {
-      object.scale.set(200000, 200000, 200000);
-      object.position.set(-20,2000,-20);
-      game.scene.add(object);
-    });
-
-    jsonloader.load(`${this.assetsPath}/CloudHemisphere.json`, function (object) {
-     // object.add(pivotPoint)
-      object.scale.set(300, 300, 300);
-      game.scene.add(object);
-
-      var RotationSpeed = 5;
-      function cloudRotator() {
+    //   var RotationSpeed = 5;
+    //   function cloudRotator() {
       
-        object.rotation.y -= RotationSpeed *10; 
+    //     object.rotation.y -= RotationSpeed *10; 
       
-      }
+    //   }
+    // });
       
-cloudRotator()
-
-     });
 /*
     function cloudRotator() {
       var time = Date.now() *0.0005;
@@ -325,10 +383,10 @@ cloudRotator()
   createTextRing() {
     const game = this;
     var geometry = new THREE.CylinderGeometry(
-      3500,
-      3500,
-      3000,
-      3200,
+      512,
+      512,
+      256,
+      20,
       16,
       1,
       true
@@ -342,7 +400,7 @@ cloudRotator()
       depthWrite: false,
     });
     var staticRing = new THREE.Mesh(geometry, staticmaterial);
-    staticRing.position.set(-2000, 4000, 8000);
+    staticRing.position.set(600, 175, 500);
 
     var textmat = new THREE.MeshBasicMaterial({
       color: 0x0,
@@ -353,17 +411,17 @@ cloudRotator()
       depthWrite: false,
     });
     game.ring = new THREE.Mesh(geometry, textmat);
-    game.ring.position.set(-2000, 4000, 8000);
+    game.ring.position.set(600, 175, 500);
     game.scene.add(staticRing);
     game.scene.add(game.ring);
 
     this.config = {
       font: "Roboto",
-      size: 35,
+      size: 10,
       padding: 10,
       colour: "#0xffffa0",
-      width: 2048,
-      height: 512,
+      width: 512,
+      height: 128,
     };
 
     this.ringCanvas = this.createRingCanvas(
@@ -407,7 +465,6 @@ cloudRotator()
   }
 
   updateRingText(msg, id) {
-    console.log(id);
     //const player = game.getRemotePlayerById(id);
     //console.log(player)
     var rotRemapped = this.map_range(
@@ -415,7 +472,7 @@ cloudRotator()
       -180,
       180,
       0,
-      this.config.width * 0.75
+      this.config.width * 0.5
     );
     //console.log(this.player.object.rotation.y, rotRemapped)
 
@@ -429,11 +486,10 @@ cloudRotator()
 
   updateRing() {
     this.tempContext.drawImage(this.ringCanvas, 0, 0);
-    this.tempContext.fillStyle = "rgb(0,0,0,0.005)";
-    this.tempContext.fillRect(0, 0, this.config.width, this.config.height);
+    //this.tempContext.fillStyle = "rgb(0,0,0,1)";
+    //this.tempContext.fillRect(0, 0, this.config.width, this.config.height);
 
-    this.ringContext.fillStyle = "rgb(0,0,0)";
-    this.ringContext.fillRect(0, 0, this.config.width, this.config.height);
+    this.ringContext.clearRect(0, 0, this.config.width, this.config.height);
 
     this.ringContext.drawImage(this.tempCanvas, 0, -1);
 
@@ -475,15 +531,15 @@ cloudRotator()
     back.position.set(0, 600, -1050);
     back.parent = this.player.object;
     const chat = new THREE.Object3D();
-    chat.position.set(0, 500, -450);
+    chat.position.set(0, 50, -45);
     chat.parent = this.player.object;
 
     const globalchat = new THREE.Object3D();
-    globalchat.position.set(250, 1000, -15550);
+    globalchat.position.set(25, 2000, -10550);
     globalchat.parent = this.player.object;
 
     const wide = new THREE.Object3D();
-    wide.position.set(178, 439, 1665);
+    wide.position.set(17, 83, 166);
     wide.parent = this.player.object;
     const overhead = new THREE.Object3D();
     overhead.position.set(0, 500, 0);
@@ -578,12 +634,17 @@ cloudRotator()
     });
   }
 
+  initChat(){
+    this.chat = document.getElementById("chat");
+    this.chatOn = false;
+  }
+
   onMouseDown(event) {
     if (
       this.remoteColliders === undefined ||
-      this.remoteColliders.length == 0 ||
-      this.speechBubble === undefined ||
-      this.speechBubble.mesh === undefined
+      this.remoteColliders.length == 0 
+      // this.speechBubble === undefined ||
+      // this.speechBubble.mesh === undefined
     )
       return;
 
@@ -597,7 +658,7 @@ cloudRotator()
     raycaster.setFromCamera(mouse, this.camera);
 
     const intersects = raycaster.intersectObjects(this.remoteColliders);
-    const chat = document.getElementById("chat");
+    const chat = this.chat;
 
     if (intersects.length > 0) {
       const object = intersects[0].object;
@@ -609,12 +670,12 @@ cloudRotator()
       if (players.length > 0) {
         const player = players[0];
         console.log(`onMouseDown: player ${player.id}`);
-        this.speechBubble.player = player;
-        this.speechBubble.update("");
-        this.scene.add(this.speechBubble.mesh);
-        this.chatSocketId = player.id;
-        chat.style.bottom = "0px";
-        this.activeCamera = this.cameras.chat;
+        // this.speechBubble.player = player;
+        // this.speechBubble.update("");
+        // this.scene.add(this.speechBubble.mesh);
+        // this.chatSocketId = player.id;
+        // chat.style.bottom = "0px";
+        // this.activeCamera = this.cameras.chat;
       }
     } else {
       //Is the chat panel visible?
@@ -623,12 +684,12 @@ cloudRotator()
         window.innerHeight - event.clientY > 40
       ) {
         console.log("onMouseDown: No player found");
-        if (this.speechBubble.mesh.parent !== null)
+        /*if (this.speechBubble.mesh.parent !== null)
           this.speechBubble.mesh.parent.remove(this.speechBubble.mesh);
         delete this.speechBubble.player;
         delete this.chatSocketId;
         chat.style.bottom = "-50px";
-        this.activeCamera = this.cameras.back;
+        this.activeCamera = this.cameras.back;*/
       } else {
         console.log("onMouseDown: typing");
       }
@@ -636,17 +697,19 @@ cloudRotator()
   }
 
   setGlobalChat(isOn) {
-    const chat = document.getElementById("chat");
-
-    if (isOn) {
-      //console.log(`set global chat on`);
-      //this.chatSocketId = player.id;
-      chat.style.bottom = "0px";
-      this.activeCamera = this.cameras.globalchat;
-    } else {
-      //console.log(`set global chat off`);
-      chat.style.bottom = "-50px";
-      this.activeCamera = this.cameras.back;
+    const chat = this.chat;
+    if (isOn!=this.chatOn){
+      if (isOn) {
+        //console.log(`set global chat on`);
+        //this.chatSocketId = player.id;
+        chat.style.bottom = "0px";
+        this.activeCamera = this.cameras.globalchat;
+       } else {
+        //console.log(`set global chat off`);
+        chat.style.bottom = "-50px";
+        this.activeCamera = this.cameras.back;
+      }
+      this.chatOn = isOn;
     }
   }
 
@@ -670,6 +733,7 @@ cloudRotator()
     requestAnimationFrame(function () {
       game.animate();
     });
+    this.stats.begin();
 
     this.updateRemotePlayers(dt);
 
@@ -695,13 +759,14 @@ cloudRotator()
         this.cameras.active.getWorldPosition(new THREE.Vector3()),
         0.05
       );
+      //player position
       const pos = this.player.object.position.clone();
       if (this.cameras.active == this.cameras.chat) {
-        pos.y += 200;
+        pos.y += 70;
       } else if (this.cameras.active == this.cameras.globalchat) {
-        pos.y += 1800;
+        pos.y += 30;
       } else {
-        pos.y += 300;
+        pos.y += 50;
       }
       this.camera.lookAt(pos);
     }
@@ -711,12 +776,14 @@ cloudRotator()
       this.sun.position.y += 10;
     }
 
-    if (this.speechBubble !== undefined)
-      this.speechBubble.show(this.camera.position);
+    //hBubble !== undefined)
+    //  this.speechBubble.show(this.camera.position);
 
     this.updateRing();
 
     this.renderer.render(this.scene, this.camera);
+    
+    this.stats.end();
   }
 }
 
@@ -763,23 +830,23 @@ class Player {
         }
       });
 
-      const textureLoader = new THREE.TextureLoader();
+      // const textureLoader = new THREE.TextureLoader();
 
-      textureLoader.load(
-        `${game.assetsPath}images/SimplePeople_${model}_${colour}.png`,
-        function (texture) {
-          object.traverse(function (child) {
-            if (child.isMesh) {
-              child.material.map = texture;
-            }
-          });
-        }
-      );
+      // textureLoader.load(
+      //   `${game.assetsPath}images/SimplePeople_${model}_${colour}.png`,
+      //   function (texture) {
+      //     object.traverse(function (child) {
+      //       if (child.isMesh) {
+      //         child.material.map = texture;
+      //       }
+      //     });
+      //   }
+      // );
 
       player.object = new THREE.Object3D();
-      player.object.position.set(-1700, 50, 4000);
+      player.object.position.set(0, 0, 300);
       player.object.rotation.set(0, -45, 0);
-      player.object.scale.set(.45,.45,.45);
+      player.object.scale.set(.1,.1,.1);
 
       player.object.add(object);
       if (player.deleted === undefined) game.scene.add(player.object);
@@ -790,11 +857,11 @@ class Player {
         game.animations.Idle = object.animations[0];
         if (player.initSocket !== undefined) player.initSocket();
       } else {
-        const geometry = new THREE.BoxGeometry(100, 300, 100);
-        const material = new THREE.MeshBasicMaterial({ visible: false });
+        const geometry = new THREE.BoxGeometry(10, 30, 10);
+        const material = new THREE.MeshBasicMaterial({ visible: true });
         const box = new THREE.Mesh(geometry, material);
         box.name = "Collider";
-        box.position.set(0, 150, 0);
+        box.position.set(0, 15, 0);
         player.object.add(box);
         player.collider = box;
         player.object.userData.id = player.id;
@@ -824,7 +891,7 @@ class Player {
     this.actionName = name;
     this.actionTime = Date.now();
 
-    action.fadeIn(0.5);
+    action.fadeIn(0.8);
     action.play();
   }
 
@@ -892,19 +959,19 @@ class PlayerLocal extends Player {
       }
     });
 
-    socket.on("chat message", function (data) {
+    /*socket.on("chat message", function (data) {
       document.getElementById("chat").style.bottom = "0px";
       const player = game.getRemotePlayerById(data.id);
       game.speechBubble.player = player;
       game.chatSocketId = player.id;
       game.activeCamera = game.cameras.chat;
       game.speechBubble.update(data.message);
-    });
+    });*/
 
     socket.on("global message", function (data) {
       document.getElementById("chat").style.bottom = "0px";
       //const player = game.getRemotePlayerById(data.id);
-      console.log("global msg received from", data.id, ": ", data.message);
+      //console.log("global msg received from", data.id, ": ", data.message);
 
       //game.chatSocketId = player.id;
       game.updateRingText(data.message, data.id);
@@ -912,7 +979,7 @@ class PlayerLocal extends Player {
 
     $("#msg-form").submit(function (e) {
       //socket.emit('chat message', { id:game.chatSocketId, message:$('#m').val() });
-      console.log("send global message: ", $("#m").val());
+      //console.log("send global message: ", $("#m").val());
       socket.emit("global message", {
         id: game.chatSocketId,
         message: $("#m").val(),
@@ -954,7 +1021,7 @@ class PlayerLocal extends Player {
 
   move(dt) {
     const pos = this.object.position.clone();
-    pos.y += 60;
+    pos.y += 6;
     let dir = new THREE.Vector3();
     this.object.getWorldDirection(dir);
     if (this.motion.forward < 0) dir.negate();
@@ -965,16 +1032,16 @@ class PlayerLocal extends Player {
     if (colliders !== undefined) {
       const intersect = raycaster.intersectObjects(colliders);
       if (intersect.length > 0) {
-        if (intersect[0].distance < 50) blocked = true;
+        if (intersect[0].distance < 5) blocked = true;
       }
     }
 
     if (!blocked) {
       if (this.motion.forward > 0) {
-        const speed = this.action == "Running" ? 2500 : 500;
+        const speed = this.action == "Running" ? 200 : 50;
         this.object.translateZ(dt * speed);
       } else {
-        this.object.translateZ(-dt * 30);
+        this.object.translateZ(-dt * 3);
       }
     }
 
@@ -987,8 +1054,8 @@ class PlayerLocal extends Player {
 
       let intersect = raycaster.intersectObjects(colliders);
       if (intersect.length > 0) {
-        if (intersect[0].distance < 50)
-          this.object.translateX(100 - intersect[0].distance);
+        if (intersect[0].distance < 5)
+          this.object.translateX(10 - intersect[0].distance);
       }
 
       //cast right
@@ -999,15 +1066,15 @@ class PlayerLocal extends Player {
 
       intersect = raycaster.intersectObjects(colliders);
       if (intersect.length > 0) {
-        if (intersect[0].distance < 50)
-          this.object.translateX(intersect[0].distance - 100);
+        if (intersect[0].distance < 5)
+          this.object.translateX(intersect[0].distance - 10);
       }
 
       //cast down
       dir.set(0, -1, 0);
-      pos.y += 200;
+      pos.y += 20;
       raycaster = new THREE.Raycaster(pos, dir);
-      const gravity = 30;
+      const gravity = 9.8;
 
       intersect = raycaster.intersectObjects(colliders);
       if (intersect.length > 0) {
@@ -1032,7 +1099,7 @@ class PlayerLocal extends Player {
     this.object.rotateY(this.motion.turn * dt);
 
     //check if inside chat ring
-    if (this.object.position.distanceTo(game.ring.position) < 2800) {
+    if (this.object.position.distanceTo(this.game.ring.position) < 500) {
       this.inRing = true;
     } else {
       this.inRing = false;
@@ -1042,6 +1109,7 @@ class PlayerLocal extends Player {
     this.updateSocket();
   }
 }
+/*
 
 class SpeechBubble {
   constructor(game, msg, size = 1) {
@@ -1161,10 +1229,10 @@ class SpeechBubble {
     if (this.mesh !== undefined && this.player !== undefined) {
       this.mesh.position.set(
         this.player.object.position.x,
-        this.player.object.position.y + 380,
+        this.player.object.position.y + 38,
         this.player.object.position.z
       );
       this.mesh.lookAt(pos);
     }
   }
-}
+}*/

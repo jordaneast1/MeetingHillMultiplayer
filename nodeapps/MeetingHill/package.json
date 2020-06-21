@@ -1,9 +1,13 @@
 {
-  "name": "blockland",
+  "name": "MeetingHill",
   "version": "0.0.1",
   "description": "multi-player socket.io app",
   "dependencies": {
     "express": "^4.15.2",
     "socket.io": "^2.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://https://github.com/jordaneast1/MeetingHillMultiplayer.git"
   }
 }
