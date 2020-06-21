@@ -231,7 +231,7 @@ class Game {
 
   loadEnvironment(loader) {
     const game = this;
-    const jsonloader = new THREE.ObjectLoader();
+    //const jsonloader = new THREE.ObjectLoader();
 
     /*loader.load(`${this.assetsPath}fbx/town.fbx`, function(object){
 			game.environment = object;
@@ -298,7 +298,7 @@ class Game {
               if (child.name.startsWith("Polygon_Reduction")){
                 console.log(child.name);
                 var texture = new THREE.TextureLoader().load("assets/TerrainOBJ/TerrainTextureBaked.jpg" );
-                child.material = new THREE.MeshStandardMaterial({});
+                child.material = new THREE.MeshStandardMaterial({recieveLight: false});
                 child.material.map = texture;                
               } 
               child.receiveShadow = true;
@@ -356,11 +356,6 @@ class Game {
 */
 
 
-
-
-
-
-
   }
 
   loadNextAnim(loader) {
@@ -383,11 +378,11 @@ class Game {
   createTextRing() {
     const game = this;
     var geometry = new THREE.CylinderGeometry(
-      512,
-      512,
-      256,
-      20,
-      16,
+      512*1.1,
+      512*1.1,
+      256*1.1,
+      32,
+      1,
       1,
       true
     );
@@ -416,8 +411,8 @@ class Game {
     game.scene.add(game.ring);
 
     this.config = {
-      font: "Roboto",
-      size: 10,
+      font: "Roboto Mono",
+      size: 8,
       padding: 10,
       colour: "#0xffffa0",
       width: 512,
@@ -792,7 +787,7 @@ class Player {
     this.local = true;
     let model, colour;
 
-    const colours = ["Black", "Brown", "White"];
+    const colours = ["Red", "Green", "Blue"];
     colour = colours[Math.floor(Math.random() * colours.length)];
 
     if (options === undefined) {
@@ -821,10 +816,11 @@ class Player {
       player.root = object;
       player.mixer = object.mixer;
 
-      object.name = "Person";
+      object.name = "Person"; 
 
       object.traverse(function (child) {
         if (child.isMesh) {
+          console.log(child.name);
           child.castShadow = true;
           child.receiveShadow = true;
         }
@@ -891,7 +887,7 @@ class Player {
     this.actionName = name;
     this.actionTime = Date.now();
 
-    action.fadeIn(0.8);
+    action.fadeIn(0.5);
     action.play();
   }
 
