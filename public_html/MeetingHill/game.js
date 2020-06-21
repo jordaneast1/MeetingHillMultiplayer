@@ -59,12 +59,12 @@ class Game {
 
     const options = {
       assets: [
-        `${this.assetsPath}images/nx.png`,
-        `${this.assetsPath}images/px.png`,
-        `${this.assetsPath}images/ny.png`,
-        `${this.assetsPath}images/py.png`,
-        `${this.assetsPath}images/nz.png`,
-        `${this.assetsPath}images/pz.png`,
+        `${this.assetsPath}images/nx.jpg`,
+        `${this.assetsPath}images/px.jpg`,
+        `${this.assetsPath}images/ny.jpg`,
+        `${this.assetsPath}images/py.jpg`,
+        `${this.assetsPath}images/nz.jpg`,
+        `${this.assetsPath}images/pz.jpg`,
       ],
       oncomplete: function () {
 		game.init();
@@ -311,12 +311,12 @@ class Game {
       tloader.setPath(`${game.assetsPath}/images/`);
 
       var textureCube = tloader.load([
-        "px.png",
-        "nx.png",
-        "py.png",
-        "ny.png",
-        "pz.png",
-        "nz.png",
+        "px.jpg",
+        "nx.jpg",
+        "py.jpg",
+        "ny.jpg",
+        "pz.jpg",
+        "nz.jpg",
       ]);
 
       game.scene.background = textureCube;
