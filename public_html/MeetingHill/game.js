@@ -110,23 +110,25 @@ class Game {
       8000
     );
 
+
+
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x00a0f0);
     //this.scene.fog = new THREE.FogExp2(0xfffaaa, 0.0001);
     //this.scene.fog = new THREE.FogExp2(0xffffff, 0.0001);
 
-    const ambient = new THREE.AmbientLight(0xaaaaaa);
+    const ambient = new THREE.AmbientLight(0x647687, 0.8);
     this.scene.add(ambient);
 
-    const light = new THREE.DirectionalLight(0xaaaaaa);
+    const light = new THREE.DirectionalLight(0xffd9a3);
     light.position.set(30, 100, 40);
     light.target.position.set(0, 0, 0);
 
     light.castShadow = true;
 
-    const lightSize = 500;
+    const lightSize = 400;
     light.shadow.camera.near = 1;
-    light.shadow.camera.far = 500;
+    light.shadow.camera.far = 700;
     light.shadow.camera.left = light.shadow.camera.bottom = -lightSize;
     light.shadow.camera.right = light.shadow.camera.top = lightSize;
 
@@ -298,7 +300,8 @@ class Game {
               if (child.name.startsWith("Polygon_Reduction")){
                 console.log(child.name);
                 var texture = new THREE.TextureLoader().load("assets/TerrainOBJ/TerrainTextureBaked.jpg" );
-                child.material = new THREE.MeshStandardMaterial({recieveLight: false});
+                child.material = new THREE.MeshStandardMaterial();
+                child.material.roughness = 1;
                 child.material.map = texture;                
               } 
               child.receiveShadow = true;
@@ -386,6 +389,8 @@ class Game {
       1,
       true
     );
+
+
 
     var staticmaterial = new THREE.MeshBasicMaterial({
       color: 0xffffa0,
@@ -502,7 +507,7 @@ class Game {
         this.player.action = "WalkingBackwards";
     } else {
       forward = 0;
-      if (Math.abs(turn) > 0.1) {
+      if (Math.abs(turn) > 0.15) {
         if (this.player.action != "Turn") this.player.action = "Turn";
       } else if (this.player.action != "Idle") {
         this.player.action = "Idle";
@@ -769,6 +774,8 @@ class Game {
     if (this.sun !== undefined) {
       this.sun.position.copy(this.camera.position);
       this.sun.position.y += 10;
+      this.sun.position.z += 120;
+      this.sun.position.x += -10;
     }
 
     //hBubble !== undefined)
@@ -787,7 +794,8 @@ class Player {
     this.local = true;
     let model, colour;
 
-    const colours = ["Red", "Green", "Blue"];
+    
+    const colours = ["Orange", "Pink", "Green", "Blue", "Red"];
     colour = colours[Math.floor(Math.random() * colours.length)];
 
     if (options === undefined) {
@@ -808,6 +816,8 @@ class Player {
     this.game = game;
     this.animations = this.game.animations;
 
+
+    
     const loader = new THREE.FBXLoader();
     const player = this;
 
@@ -818,12 +828,335 @@ class Player {
 
       object.name = "Person"; 
 
+
+
+//-------------------------------------------------------------------
+//Pats Orb Textures 
+//Orb Outer
+//Sphere_2_2
+
+//var orbTexture = new THREE.TextureLoader().load `./assets/images/OrbBump.jpg`;
+var orbEnviromap = new THREE.TextureLoader().load("assets/images/orbEnviromap.jpg");
+var orbTexture = new THREE.TextureLoader().load("assets/images/OrbBump.jpg" );
+
+
+
+
+
+var outerOrb = new THREE.MeshPhysicalMaterial({
+  color: '#FFFFFF',
+  metalness: 1,
+  emissive: '#FFFFFF',
+  clearcoat: 1,
+  clearcoatRoughness: 0.32,
+  bumpScale: 1,
+  bumpMap: orbTexture,
+  roughnessMap: orbTexture,
+  roughness: 0.0,
+  metalnessMap: orbTexture,
+  emissiveMap: orbTexture,
+  envMap: orbEnviromap,
+  envMapIntensity: 1,
+  reflectivity: 1.5,
+  refractionRatio: 0.98,
+  opacity: 0.44,
+  transparent: true,
+  depthFunc: 3,
+  depthTest: true,
+  depthWrite: true,
+  
+});
+
+
+//RED COLOUR PLAYER
+//Inner Sphere 
+//Sphere_4
+var innerRed = new THREE.MeshPhysicalMaterial({
+  name: "Red",
+  color: 16711680,
+  roughness: 0.52,
+  metalness: 0,
+  emissive: 16711680,
+  clearcoat: 0,
+  clearcoatRoughness: 0,
+});
+//Sphere_3
+var sphere3Red = new THREE.MeshStandardMaterial({
+  name: "Red",
+  color: 16598295,
+  roughness: 0.46,
+  metalness: 0,
+  emissive: 14360832,
+});
+//Sphere_2
+var sphere2Red = new THREE.MeshStandardMaterial({
+  name: "Red",
+  color: 16718362,
+  roughness: 0.46,
+  metalness: 0,
+  emissive: 6356992,
+});
+//Sphere_1
+var sphere1Red = new THREE.MeshStandardMaterial({
+  name: "Red",
+  color: 16734464,
+  roughness: 0.46,
+  metalness: 0,
+  emissive: 14363648,
+});
+//Sphere
+var sphereRed = new THREE.MeshStandardMaterial({
+  name: "Red",
+  color: 16732754,
+  roughness: 0.46,
+  metalness: 0,
+  emissive: 12386304,
+});
+
+
+
+//Blue COLOUR PLAYER
+//Inner Sphere 
+//Sphere_4
+var innerBlue = new THREE.MeshPhysicalMaterial({
+name: "Blue",
+color: '#0088ff',
+roughness: 0.52,
+metalness: 0,
+emissive: '#0088ff',
+clearcoat: 0,
+clearcoatRoughness: 0,
+});
+//Sphere_3
+var sphere3Blue = new THREE.MeshStandardMaterial({
+name: "Blue",
+color: '#006EFF',
+roughness: 0.46,
+metalness: 0,
+emissive: '#0062FF',
+});
+//Sphere_2
+var sphere2Blue = new THREE.MeshStandardMaterial({
+name: "Blue",
+color: '#3118F2',
+roughness: 0.46,
+metalness: 0,
+emissive: '#1310C6',
+});
+//Sphere_1
+var sphere1Blue = new THREE.MeshStandardMaterial({
+name: "Blue",
+color: '#006DCC',
+roughness: 0.46,
+metalness: 0,
+emissive: '#0025DB',
+});
+//Sphere
+var sphereBlue = new THREE.MeshStandardMaterial({
+name: "Blue",
+color: '#11C06E',
+roughness: 0.46,
+metalness: 0,
+emissive: '#03C924',
+});
+
+
+
+//Green COLOUR PLAYER
+//Inner Sphere 
+//Sphere_4
+var innerGreen = new THREE.MeshPhysicalMaterial({
+name: "Green",
+color: '#00FF33',
+roughness: 0.52,
+metalness: 0,
+emissive: '#04FF00',
+clearcoat: 0,
+clearcoatRoughness: 0,
+});
+//Sphere_3
+var sphere3Green = new THREE.MeshStandardMaterial({
+name: "Green",
+color: '#00FF1E',
+roughness: 0.46,
+metalness: 0,
+emissive: '1AFF34',
+});
+//Sphere_2
+var sphere2Green = new THREE.MeshStandardMaterial({
+name: "Green",
+color: '#F2B718',
+roughness: 0.46,
+metalness: 0,
+emissive: '#C6C010',
+});
+//Sphere_1
+var sphere1Green = new THREE.MeshStandardMaterial({
+name: "Green",
+color: '#02DE4C',
+roughness: 0.46,
+metalness: 0,
+emissive: '#00B850',
+});
+//Sphere
+var sphereGreen = new THREE.MeshStandardMaterial({
+name: "Green",
+color: '#437A00',
+roughness: 0.46,
+metalness: 0,
+emissive: '#31B800',
+});
+
+
+
+//Pink COLOUR PLAYER
+//Inner Sphere 
+//Sphere_4
+var innerPink = new THREE.MeshPhysicalMaterial({
+name: "Pink",
+color: '#FF0040',
+roughness: 0.52,
+metalness: 0,
+emissive: '#FF0019',
+clearcoat: 0,
+clearcoatRoughness: 0,
+});
+//Sphere_3
+var sphere3Pink = new THREE.MeshStandardMaterial({
+name: "Pink",
+color: '#FF24CF',
+roughness: 0.46,
+metalness: 0,
+emissive: '#FE58D2',
+});
+//Sphere_2
+var sphere2Pink = new THREE.MeshStandardMaterial({
+name: "Pink",
+color: '#F21818',
+roughness: 0.46,
+metalness: 0,
+emissive: '#C61010',
+});
+//Sphere_1
+var sphere1Pink = new THREE.MeshStandardMaterial({
+name: "Pink",
+color: '#DE0265',
+roughness: 0.46,
+metalness: 0,
+emissive: '#DB0000',
+});
+//Sphere
+var spherePink = new THREE.MeshStandardMaterial({
+name: "Pink",
+color: '#9F00F5',
+roughness: 0.46,
+metalness: 0,
+emissive: '#4900B8',
+});
+
+
+
+//Orange COLOUR PLAYER
+//Inner Sphere 
+//Sphere_4
+var innerOrange = new THREE.MeshPhysicalMaterial({
+name: "Orange",
+color: '#FF8800',
+roughness: 0.52,
+metalness: 0,
+emissive: '#D60000',
+clearcoat: 0,
+clearcoatRoughness: 0,
+});
+//Sphere_3
+var sphere3Orange = new THREE.MeshStandardMaterial({
+name: "Orange",
+color: '#FFD500',
+roughness: 0.46,
+metalness: 0,
+emissive: '#D67D00',
+});
+//Sphere_2
+var sphere2Orange = new THREE.MeshStandardMaterial({
+name: "Orange",
+color: '#FF0000',
+roughness: 0.46,
+metalness: 0,
+emissive: '#FA0000',
+});
+//Sphere_1
+var sphere1Orange = new THREE.MeshStandardMaterial({
+name: "Orange",
+color: '#F01000',
+roughness: 0.46,
+metalness: 0,
+emissive: '#DB2100',
+});
+//Sphere
+var sphereOrange = new THREE.MeshStandardMaterial({
+name: "Orange",
+color: '#FF8800',
+roughness: 0.46,
+metalness: 0,
+emissive: '#D60000',
+});
+//------------------------------------------------------------
+
+var innerMaterialList = [innerRed, innerBlue, innerOrange, innerGreen, innerPink]
+var Sphere3MaterialList = [sphere3Red, sphere3Blue, sphere3Orange, sphere3Green, sphere3Pink]
+var Sphere2MaterialList = [sphere2Red, sphere2Blue, sphere2Orange, sphere2Green, sphere2Pink]
+var Sphere1MaterialList = [sphere1Red, sphere1Blue, sphere1Orange, sphere1Green, sphere1Pink]
+var SphereMaterialList = [sphereRed, sphereBlue, sphereOrange, sphereGreen, spherePink]
+
+function getMaterial(mat){
+  return mat.name == colour;
+  }
+var innerChecker = innerMaterialList.filter(getMaterial);
+var Sphere3Checker =  Sphere3MaterialList.filter(getMaterial);
+var Sphere2Checker =  Sphere2MaterialList.filter(getMaterial);
+var Sphere1Checker =  Sphere1MaterialList.filter(getMaterial);
+var SphereChecker =  SphereMaterialList.filter(getMaterial);
+
+
       object.traverse(function (child) {
         if (child.isMesh) {
-          console.log(child.name);
+          if(child.name == "Sphere_2_2"){
+            child.material = outerOrb;
+          }
           child.castShadow = true;
           child.receiveShadow = true;
         }
+
+        if(child.name == "Sphere_4"){
+          if (innerChecker.length > 0) {
+         child.material = innerChecker[0];
+          }
+        }
+
+        if(child.name == "Sphere_3"){
+          if (Sphere3Checker.length > 0) {
+         child.material = Sphere3Checker[0];
+          }
+        }
+
+        if(child.name == "Sphere_2"){
+          if (Sphere2Checker.length > 0) {
+         child.material = Sphere2Checker[0];
+          }
+        }
+
+        if(child.name == "Sphere_1"){
+          if (Sphere1Checker.length > 0) {
+         child.material = Sphere1Checker[0];
+          }
+        }
+
+        if(child.name == "Sphere"){
+          if (SphereChecker.length > 0) {
+         child.material = SphereChecker[0];
+          }
+        }
+        
       });
 
       // const textureLoader = new THREE.TextureLoader();
@@ -1104,7 +1437,10 @@ class PlayerLocal extends Player {
 
     this.updateSocket();
   }
+  
 }
+
+
 /*
 
 class SpeechBubble {
