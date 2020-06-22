@@ -833,36 +833,64 @@ class Player {
 //Sphere_2_2
 
 //var orbTexture = new THREE.TextureLoader().load `./assets/images/OrbBump.jpg`;
-var orbEnviromap = new THREE.TextureLoader().load("assets/images/orbEnviromap.jpg");
+//var orbEnviromap = new THREE.TextureLoader().load("assets/images/orbEnviromap.jpg");
 var orbTexture = new THREE.TextureLoader().load("assets/images/OrbBump.jpg" );
 
 
+var orbTexture = new THREE.TextureLoader().load("assets/images/OrbBump.jpg" );
 
-
+const assetsUrl = "assets/images/";
+const urls = [
+  assetsUrl + "px.jpg",
+  assetsUrl + "nx.jpg",
+  assetsUrl + "py.jpg",
+  assetsUrl + "ny.jpg",
+  assetsUrl + "pz.jpg",
+  assetsUrl + "nz.jpg",
+];
+const envMap = new THREE.CubeTextureLoader().load(urls);
 
 var outerOrb = new THREE.MeshPhysicalMaterial({
-  color: '#FFFFFF',
+  color: "#FFFFFF",
   metalness: 1,
-  emissive: '#FFFFFF',
-  clearcoat: 1,
-  clearcoatRoughness: 0.32,
+  
   bumpScale: 1,
   bumpMap: orbTexture,
-  roughnessMap: orbTexture,
-  roughness: 0.0,
-  metalnessMap: orbTexture,
-  emissiveMap: orbTexture,
-  envMap: orbEnviromap,
+  clearcoat: 1,
+  clearcoatRoughness: 0.32,
+  // roughnessMap: orbTexture,
+  roughness: 0,
+  envMap: envMap,
   envMapIntensity: 1,
-  reflectivity: 1.5,
-  refractionRatio: 0.98,
-  opacity: 0.44,
+  premultipliedAlpha: true,
+  opacity: 0.5,
   transparent: true,
-  depthFunc: 3,
-  depthTest: true,
-  depthWrite: true,
-  
 });
+
+
+// var outerOrb = new THREE.MeshPhysicalMaterial({
+//   color: '#FFFFFF',
+//   metalness: 1,
+//   emissive: '#FFFFFF',
+//   clearcoat: 1,
+//   clearcoatRoughness: 0.32,
+//   bumpScale: 1,
+//   bumpMap: orbTexture,
+//   roughnessMap: orbTexture,
+//   roughness: 0.0,
+//   metalnessMap: orbTexture,
+//   emissiveMap: orbTexture,
+//   envMap: orbEnviromap,
+//   envMapIntensity: 1,
+//   reflectivity: 1.5,
+//   refractionRatio: 0.98,
+//   opacity: 0.44,
+//   transparent: true,
+//   depthFunc: 3,
+//   depthTest: true,
+//   depthWrite: true,
+  
+// });
 
 
 //RED COLOUR PLAYER
