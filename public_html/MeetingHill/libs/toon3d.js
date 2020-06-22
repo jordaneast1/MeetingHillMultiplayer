@@ -420,6 +420,7 @@ class JoyStick{
 
 class Preloader{
 	constructor(options){
+		this.managerDone = false;
 		this.assets = {};
 		for(let asset of options.assets){
 			this.assets[asset] = { loaded:0, complete:false };
@@ -449,7 +450,7 @@ class Preloader{
 			barBase.style.height = '15px';
 			this.domElement.appendChild(barBase);
 			const bar = document.createElement("div");
-			bar.style.background = '#2a2';
+			bar.style.background = '#fa2';
 			bar.style.width = '50%';
 			bar.style.borderRadius = '10px';
 			bar.style.height = '100%';
@@ -475,9 +476,10 @@ class Preloader{
 	}
 	
 	checkCompleted(){
+
 		for(let prop in this.assets){
 			const asset = this.assets[prop];
-			if (!asset.complete) return false;
+			if (!asset.complete && !this.managerDone) return false;
 		}
 		return true;
 	}
