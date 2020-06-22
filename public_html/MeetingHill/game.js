@@ -79,7 +79,7 @@ class Game {
     options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainWCollider.obj`);
     options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainTextureBaked.jpg`);
 
-    //options.assets.push(`${this.assetsPath}/HDRITerrain.json`);
+    // options.assets.push(`${this.assetsPath}/HDRITerrain.json`);
     //options.assets.push(`${this.assetsPath}/CloudHemisphere.json`);
 
 
@@ -87,7 +87,18 @@ class Game {
 
     this.clock = new THREE.Clock();
 
+
     const preloader = new Preloader(options);
+
+    this.manager = new THREE.LoadingManager(); 
+    this.manager.onLoad = function ( ) {
+
+      console.log( 'Loading complete!');
+      preloader.managerDone = true;
+      game.initSfx();
+
+    
+    };
 
     window.onError = function (error) {
       console.error(JSON.stringify(error));
@@ -140,7 +151,7 @@ class Game {
     this.scene.add(light);
 
     // model
-    const loader = new THREE.FBXLoader();
+    const loader = new THREE.FBXLoader(this.manager);
     const game = this;
 
     this.player = new PlayerLocal(this);
@@ -150,7 +161,6 @@ class Game {
 
   this.createTextRing();
   this.initChat();
-	this.initSfx();
 
     //this.speechBubble = new SpeechBubble(this, "", 150);
     //this.speechBubble.mesh.position.set(0, 350, 0);
@@ -197,36 +207,34 @@ class Game {
       volume: 0.25,
     });
 
-    
-
     this.listener = new THREE.AudioListener();
-	this.camera.add(this.listener);
-	
-	this.radioElement = document.getElementById("azuracast");
-	this.radioElement.volume = 1;
-    	
-	this.initSpeakers();
+    this.player.object.add(this.listener);
+    
+    this.radioElement = document.getElementById("azuracast");
+    this.radioElement.volume = 1;
+    this.radioElement.play();
+        
+    this.initSpeakers();
   }
 
   initSpeakers(){
-	var geometry = new THREE.BoxGeometry( 10, 10, 10 );
-	var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-	var cube = new THREE.Mesh( geometry, material );
-	cube.position.set(-35, 15, 40);
+    var geometry = new THREE.BoxGeometry( 10, 10, 10 );
+    var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+    var cube = new THREE.Mesh( geometry, material );
+    cube.position.set(630, -50, 450);
 
-	if (this.radioElement != null){
-		console.log("found elem")
-		var positionalAudio = new THREE.PositionalAudio(this.listener);
-		positionalAudio.setMediaElementSource(this.radioElement);
-		positionalAudio.setRefDistance(250);
-		positionalAudio.setDirectionalCone(360, 360, 1);
-
-		cube.add(positionalAudio);
-	} else {
-		console.log("no azura cast DOM element")
-	}
-		
-	this.scene.add( cube );
+    if (this.radioElement != null){
+      console.log("found elem")
+      var positionalAudio = new THREE.PositionalAudio(this.listener);
+      positionalAudio.setMediaElementSource(this.radioElement);
+      positionalAudio.setRefDistance(200);
+      positionalAudio.setDirectionalCone(360, 360, 1);
+      cube.add(positionalAudio);
+    } else {
+      console.log("no azura cast DOM element")
+    }
+      
+    this.scene.add( cube );
   }
 
 
@@ -250,36 +258,10 @@ class Game {
 					}
 				}
 			} );*/
-    // jsonloader.load(`${this.assetsPath}/mountain4.json`, function (object) {
-    //   object.scale.set(2, 2, 2);
-    //   object.position.set(-1500, -800, 1500);
-    //   object.rotation.set(0, 160, 0);
-    //   game.environment = object;
-    //   game.colliders = [];
-    //   game.scene.add(object);
-
-    //   const tloader = new THREE.CubeTextureLoader();
-    //   tloader.setPath(`${game.assetsPath}/images/`);
-
-    //   var textureCube = tloader.load([
-    //     "px.png",
-    //     "nx.png",
-    //     "py.png",
-    //     "ny.png",
-    //     "pz.png",
-    //     "nz.png",
-    //   ]);
-
-    //   game.scene.background = textureCube;
-
-
-    //   game.loadNextAnim(loader);
-    // });
+  
     game.colliders = [];
 
-    var manager = new THREE.LoadingManager(); 
-
-    const objLoader = new THREE.OBJLoader();
+    const objLoader = new THREE.OBJLoader(this.manager);
 
     objLoader.load('assets/TerrainOBJ/TerrainWCollider.obj', function (object) {
         object.scale.set(2, 2, 2);
@@ -300,17 +282,23 @@ class Game {
               if (child.name.startsWith("Polygon_Reduction")){
                 console.log(child.name);
                 var texture = new THREE.TextureLoader().load("assets/TerrainOBJ/TerrainTextureBaked.jpg" );
+
                 child.material = new THREE.MeshStandardMaterial();
                 child.material.roughness = 1;
+
+
                 child.material.map = texture;                
-              } 
+              }  else {
+                //Speakers
+
+              }
               child.receiveShadow = true;
             }
           }
         } );
     });
 
-    const tloader = new THREE.CubeTextureLoader();
+    const tloader = new THREE.CubeTextureLoader(this.manager);
       tloader.setPath(`${game.assetsPath}/images/`);
 
       var textureCube = tloader.load([
@@ -381,9 +369,9 @@ class Game {
   createTextRing() {
     const game = this;
     var geometry = new THREE.CylinderGeometry(
-      512*1.1,
-      512*1.1,
-      256*1.1,
+      512*1,
+      512*1,
+      512*1,
       32,
       1,
       1,
@@ -400,7 +388,7 @@ class Game {
       depthWrite: false,
     });
     var staticRing = new THREE.Mesh(geometry, staticmaterial);
-    staticRing.position.set(600, 175, 500);
+    staticRing.position.set(600, 300, 500);
 
     var textmat = new THREE.MeshBasicMaterial({
       color: 0x0,
@@ -411,17 +399,18 @@ class Game {
       depthWrite: false,
     });
     game.ring = new THREE.Mesh(geometry, textmat);
-    game.ring.position.set(600, 175, 500);
+    game.ring.position.set(600, 300, 500);
+    game.ring.rotation.y = 45+180;
     game.scene.add(staticRing);
     game.scene.add(game.ring);
 
     this.config = {
       font: "Roboto Mono",
-      size: 8,
+      size: 10,
       padding: 10,
       colour: "#0xffffa0",
-      width: 512,
-      height: 128,
+      width: 1024,
+      height: 256,
     };
 
     this.ringCanvas = this.createRingCanvas(
@@ -449,7 +438,6 @@ class Game {
     this.ringContext.textAlign = "centre";
     //g.fillStyle = 'white';
     //g.fillText(msg, 512/2, 128);
-
     game.ring.material.map.needsUpdate = true;
   }
 
@@ -468,19 +456,19 @@ class Game {
     //const player = game.getRemotePlayerById(id);
     //console.log(player)
     var rotRemapped = this.map_range(
-      this.player.object.rotation.y * (180 / Math.PI),
-      -180,
-      180,
+      (this.player.object.rotation.y+1)/2,
       0,
-      this.config.width * 0.5
+      1,
+      this.config.width-10,
+      0+10
     );
-    //console.log(this.player.object.rotation.y, rotRemapped)
+    console.log((this.player.object.rotation.y+1)/2, rotRemapped)
 
     this.ringContext.font = `${this.config.size}pt ${this.config.font}`;
     this.ringContext.textAlign = "left";
     this.ringContext.fillStyle = "white";
-    this.ringContext.fillText(msg, rotRemapped, this.config.height - 15);
-
+    this.ringContext.fillText(msg, rotRemapped, this.config.height - 5);
+    this.ringContext.fillRect(0,0,1,this.config.height)
     game.ring.material.map.needsUpdate = true;
   }
 
@@ -535,7 +523,7 @@ class Game {
     chat.parent = this.player.object;
 
     const globalchat = new THREE.Object3D();
-    globalchat.position.set(25, 2000, -10550);
+    globalchat.position.set(25, 2000, -12550);
     globalchat.parent = this.player.object;
 
     const wide = new THREE.Object3D();
@@ -764,12 +752,13 @@ class Game {
       if (this.cameras.active == this.cameras.chat) {
         pos.y += 70;
       } else if (this.cameras.active == this.cameras.globalchat) {
-        pos.y += 30;
+        pos.y += 100;
       } else {
         pos.y += 50;
       }
       this.camera.lookAt(pos);
     }
+
 
     if (this.sun !== undefined) {
       this.sun.position.copy(this.camera.position);
@@ -777,6 +766,9 @@ class Game {
       this.sun.position.z += 120;
       this.sun.position.x += -10;
     }
+
+
+
 
     //hBubble !== undefined)
     //  this.speechBubble.show(this.camera.position);
@@ -820,6 +812,11 @@ class Player {
     
     const loader = new THREE.FBXLoader();
     const player = this;
+
+    player.object = new THREE.Object3D();
+      player.object.position.set(0, 0, 300);
+      player.object.rotation.set(0, -45, 0);
+      player.object.scale.set(.1,.1,.1);
 
     loader.load(`${game.assetsPath}fbx/people/${model}.fbx`, function (object) {
       object.mixer = new THREE.AnimationMixer(object);
@@ -1170,12 +1167,7 @@ var SphereChecker =  SphereMaterialList.filter(getMaterial);
       //       }
       //     });
       //   }
-      // );
-
-      player.object = new THREE.Object3D();
-      player.object.position.set(0, 0, 300);
-      player.object.rotation.set(0, -45, 0);
-      player.object.scale.set(.1,.1,.1);
+      // ); 
 
       player.object.add(object);
       if (player.deleted === undefined) game.scene.add(player.object);
