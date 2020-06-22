@@ -444,20 +444,65 @@ class Game {
     return low2 + ((high2 - low2) * (value - low1)) / (high1 - low1);
   }
 
+  quatToEuler (q1) {
+    var pitchYawRoll = new THREE.Vector3();
+     var sqw = q1.w*q1.w;
+     var sqx = q1.x*q1.x;
+     var sqy = q1.y*q1.y;
+     var sqz = q1.z*q1.z;
+     var unit = sqx + sqy + sqz + sqw; // if normalised is one, otherwise is correction factor
+     var test = q1.x*q1.y + q1.z*q1.w;
+     var heading;
+     var attitude;
+     var bank;
+    if (test > 0.499*unit) { // singularity at north pole
+        heading = 2 * Math.atan2(q1.x,q1.w);
+        attitude = Math.PI/2;
+        bank = 0;
+        return;
+    }
+    if (test < -0.499*unit) { // singularity at south pole
+        heading = -2 * Math.atan2(q1.x,q1.w);
+        attitude = -Math.PI/2;
+        bank = 0;
+        return;
+    }
+    else {
+        heading = Math.atan2(2*q1.y*q1.w-2*q1.x*q1.z , sqx - sqy - sqz + sqw);
+        attitude = Math.asin(2*test/unit);
+        bank = Math.atan2(2*q1.x*q1.w-2*q1.y*q1.z , -sqx + sqy - sqz + sqw)
+    }
+    pitchYawRoll.z = Math.floor(attitude * 1000) / 1000;
+    pitchYawRoll.y = Math.floor(heading * 1000) / 1000;
+    pitchYawRoll.x = Math.floor(bank * 1000) / 1000;
+
+    return pitchYawRoll;
+}       
+eulerToAngle(rot) {
+  var ca = 0;
+  if (rot > 0)
+      { ca = (Math.PI*2) - rot; } 
+  else 
+      { ca = -rot }
+
+  return (ca / ((Math.PI*2)/360));  // camera angle radians converted to degrees
+} 
+
   updateRingText(msg, id) {
-    //const player = game.getRemotePlayerById(id);
-    //console.log(player)
+    var erot = this.quatToEuler(this.player.object.quaternion);
+    var rot = this.eulerToAngle(erot.y);
+    rot = (rot + 180)%360  
     var rotRemapped = this.map_range(
-      (this.player.object.rotation.y+1)/2,
+      rot,
       0,
-      1,
+      360,
       this.config.width-10,
-      0+10
+      10
     );
-    console.log((this.player.object.rotation.y+1)/2, rotRemapped)
+   // console.log( rot, rotRemapped)
 
     this.ringContext.font = `${this.config.size}pt ${this.config.font}`;
-    this.ringContext.textAlign = "left";
+    this.ringContext.textAlign = "center";
     this.ringContext.fillStyle = "white";
     this.ringContext.fillText(msg, rotRemapped, this.config.height - 5);
     this.ringContext.fillRect(0,0,1,this.config.height)
@@ -471,7 +516,7 @@ class Game {
 
     this.ringContext.clearRect(0, 0, this.config.width, this.config.height);
 
-    this.ringContext.drawImage(this.tempCanvas, 0, -1);
+    this.ringContext.drawImage(this.tempCanvas, 0, -.98);
 
     game.ring.material.map.needsUpdate = true;
   }
@@ -488,6 +533,7 @@ class Game {
     } else {
       forward = 0;
       if (Math.abs(turn) > 0.1) {
+        this.updateRingText(".",this.player.id);
         if (this.player.action != "Turn") this.player.action = "Turn";
       } else if (this.player.action != "Idle") {
         this.player.action = "Idle";
@@ -515,7 +561,7 @@ class Game {
     chat.parent = this.player.object;
 
     const globalchat = new THREE.Object3D();
-    globalchat.position.set(25, 2000, -12550);
+    globalchat.position.set(25, 2000, -15550);
     globalchat.parent = this.player.object;
 
     const wide = new THREE.Object3D();
@@ -872,7 +918,7 @@ class Player {
     this.actionName = name;
     this.actionTime = Date.now();
 
-    action.fadeIn(0.5);
+    action.fadeIn(4);
     action.play();
   }
 
