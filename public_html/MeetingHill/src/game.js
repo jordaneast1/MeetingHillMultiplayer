@@ -1479,7 +1479,7 @@ class PlayerLocal extends Player {
       dir.set(0, -1, 0);
       pos.y += 20;
       raycaster = new THREE.Raycaster(pos, dir);
-      const gravity = 4;
+      const gravity = 9.8;
 
       intersect = raycaster.intersectObjects(colliders);
       if (intersect.length > 0) {
