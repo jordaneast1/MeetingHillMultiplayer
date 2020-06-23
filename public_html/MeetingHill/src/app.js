@@ -8,6 +8,7 @@ const initAll = async () => {
   var instructions = document.getElementById("instructions");
 
   blocker.style.display = "none";
+  chat.style.display = "none";
 
   var game;
 
@@ -30,6 +31,7 @@ const initAll = async () => {
         gameInit = true;
         azura.volume = 1;
         blocked = false;
+        chat.style.display = "block";
       } else {
         blocker.style.display = "none";
         joystick.style.display = 'block';
