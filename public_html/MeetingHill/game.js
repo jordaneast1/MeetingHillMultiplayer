@@ -391,10 +391,10 @@ class Game {
     staticRing.position.set(600, 300, 500);
 
     var textmat = new THREE.MeshBasicMaterial({
-      color: 0x0,
+      color: 0xf,
       side: THREE.DoubleSide,
       transparent: true,
-      opacity: 0.9,
+      opacity: 1,
       fog: false,
       depthWrite: false,
     });
@@ -426,14 +426,14 @@ class Game {
 
     var mat = new THREE.CanvasTexture(this.ringCanvas);
     game.ring.material.map = mat;
-    game.ring.material.alphaMap = mat;
+    //game.ring.material.alphaMap = mat;
     this.initRing("Meeting Hill");
   }
   initRing(msg) {
     this.ringContext.font = `${this.config.size}pt ${this.config.font}`;
 
-    this.ringContext.fillStyle = "black";
-    this.ringContext.fillRect(0, 0, this.config.width, this.config.height);
+    // this.ringContext.fillStyle = "black";
+    //this.ringContext.fillRect(0, 0, this.config.width, this.config.height);
     //this.wrapText(msg, g, this.config);
     this.ringContext.textAlign = "centre";
     //g.fillStyle = 'white';
@@ -511,9 +511,9 @@ eulerToAngle(rot) {
 
     this.ringContext.font = `${this.config.size}pt ${this.config.font}`;
     this.ringContext.textAlign = "center";
-    this.ringContext.fillStyle = "white";
+    this.ringContext.fillStyle = "red";
     this.ringContext.fillText(msg, rotRemapped, this.config.height - 5);
-    this.ringContext.fillRect(0,0,1,this.config.height)
+    //this.ringContext.fillRect(0,0,1,this.config.height)
     game.ring.material.map.needsUpdate = true;
   }
 
@@ -524,7 +524,9 @@ eulerToAngle(rot) {
 
     this.ringContext.clearRect(0, 0, this.config.width, this.config.height);
 
-    this.ringContext.drawImage(this.tempCanvas, 0, -.98);
+    this.ringContext.drawImage(this.tempCanvas, 0, -1);
+    this.tempContext.clearRect(0, 0, this.config.width, this.config.height);
+
 
     game.ring.material.map.needsUpdate = true;
   }
