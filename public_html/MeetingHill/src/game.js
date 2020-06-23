@@ -211,7 +211,7 @@ export default class Game {
       src: { mp3: `${this.assetsPath}sfx/cold_stormy_wind.mp3` },
       loop: true,
       autoplay: true,
-      volume: 0.25,
+      volume: 0.1,
     });
 
     this.listener = new THREE.AudioListener();
@@ -1263,7 +1263,7 @@ class Player {
         if (player.initSocket !== undefined) player.initSocket();
       } else {
         const geometry = new THREE.BoxGeometry(10, 30, 10);
-        const material = new THREE.MeshBasicMaterial({ visible: true });
+        const material = new THREE.MeshBasicMaterial({ visible: false });
         const box = new THREE.Mesh(geometry, material);
         box.name = "Collider";
         box.position.set(0, 15, 0);
