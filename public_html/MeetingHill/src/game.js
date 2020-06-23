@@ -133,12 +133,20 @@ export default class Game {
     //this.scene.fog = new THREE.FogExp2(0xfffaaa, 0.0001);
     //this.scene.fog = new THREE.FogExp2(0xffffff, 0.0001);
 
-    const ambient = new THREE.AmbientLight(0xffffff, 0.5);
-    this.scene.add(ambient);
 
-    const light = new THREE.DirectionalLight(0xffd9a3);
+    const hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x061A31, 0.5);
+    this.scene.add(hemiLight);
+
+
+
+    //const ambient = new THREE.AmbientLight(0x647687, 0);
+    //this.scene.add(ambient);
+    //ambient.castShadow = false;
+
+    const light = new THREE.DirectionalLight(0xffeeb1, 0.8);
     light.position.set(30, 100, 40);
     light.target.position.set(0, 0, 0);
+    //light.castShadow = false;
 
     light.castShadow = true;
 
@@ -275,7 +283,7 @@ export default class Game {
 
     const objLoader = new OBJLoader(this.manager);
 
-    objLoader.load("assets/TerrainOBJ/TerrainWCollider.obj", function (object) {
+    objLoader.load('assets/TerrainOBJ/TerrainWCollider2.obj', function (object) {
       object.scale.set(2, 2, 2);
       object.position.set(0, 0, 0);
       object.rotation.set(0, 160, 0);
@@ -289,24 +297,43 @@ export default class Game {
             game.colliders.push(child);
             // console.log(child.material.visible)
             child.material.visible = false;
+
           } else {
             if (child.name.startsWith("Polygon_Reduction")) {
               console.log(child.name);
-              var texture = new THREE.TextureLoader().load(
-                "assets/TerrainOBJ/TerrainTextureBaked.jpg"
-              );
+              var texture = new THREE.TextureLoader().load("assets/TerrainOBJ/TerrainTextureBaked.jpg");
 
               child.material = new THREE.MeshStandardMaterial();
-              child.material.roughness = 1;
-
-              child.material.receiveShadow = true;
+              //child.material.colour = '#000000',
+              child.material.roughness = 0;
               child.material.map = texture;
             } else {
               //Speakers
+              if (child.name.startsWith("MainSpeaker")) {
+                var woodDiffuse = new THREE.TextureLoader().load("assets/TerrainOBJ/WoodAlbedo2.jpg");
+                var woodRoughness = new THREE.TextureLoader().load("assets/TerrainOBJ/WoodRoughness.jpg");
+
+                child.material = new THREE.MeshStandardMaterial();
+                child.material.map = woodDiffuse;
+                child.material.roughnessMap = woodRoughness;
+                child.material.roughness = 1;
+              
+              }else{
+                if (child.name.startsWith("Cable")) {
+                  child.material = new THREE.MeshStandardMaterial();
+                  child.material.map = 0x000000;
+                  child.material.roughness = 1;
+                  }
+                }
+  
+              
+            
+              }
+              child.receiveShadow = true;
             }
             child.receiveShadow = true;
           }
-        }
+        
       });
     });
 
@@ -379,43 +406,79 @@ export default class Game {
     var geometry = new THREE.CylinderGeometry(
       512 * 1,
       512 * 1,
-      512 * 1,
-      32,
+      256 * 1,
+      100,
       1,
       1,
       true
     );
 
-    var staticmaterial = new THREE.MeshBasicMaterial({
-      color: 0xffffa0,
+
+    var orbTexture = new THREE.TextureLoader().load("assets/images/OrbBump.jpg");
+
+    const assetsUrl = "assets/images/";
+    const urls = [
+      assetsUrl + "px.jpg",
+      assetsUrl + "nx.jpg",
+      assetsUrl + "py.jpg",
+      assetsUrl + "ny.jpg",
+      assetsUrl + "pz.jpg",
+      assetsUrl + "nz.jpg",
+    ];
+    const envMap = new THREE.CubeTextureLoader().load(urls);
+
+    var staticmaterial = new THREE.MeshPhysicalMaterial({
+      color: "#FFFFFF",
+      metalness: 1,
       side: THREE.DoubleSide,
+      bumpScale: 0.1,
+      bumpMap: orbTexture,
+      clearcoat: 1,
+      clearcoatRoughness: 0.12,
+      roughnessMap: orbTexture,
+      roughness: 0,
+      envMap: envMap,
+      envMapIntensity: 0.8,
+      premultipliedAlpha: true,
+      opacity: 0.2,
       transparent: true,
-      opacity: 0.25,
       depthWrite: false,
+      //receiveShadow: false,
     });
+
+    // var staticmaterial = new THREE.MeshBasicMaterial({
+    //   color: 0xffffff,
+    //   side: THREE.DoubleSide,
+    //   transparent: true,
+    //   opacity: 0.1,
+    //   depthWrite: false,
+    // });
+
+
     var staticRing = new THREE.Mesh(geometry, staticmaterial);
-    staticRing.position.set(600, 300, 500);
+    staticRing.position.set(500, 250, 300);
 
     var textmat = new THREE.MeshBasicMaterial({
-      color: 0xf,
+      color: 0x000000,
       side: THREE.DoubleSide,
       transparent: true,
       opacity: 1,
+      fog: false,
       depthWrite: false,
     });
-    this.ring = new THREE.Mesh(geometry, textmat);
-    this.ring.position.set(600, 300, 500);
-    this.ring.rotation.y = 45 + 180;
-    this.scene.add(staticRing);
-    this.scene.add(this.ring);
+    game.ring = new THREE.Mesh(geometry, textmat);
+    game.ring.position.set(500, 250, 300);
+    game.ring.rotation.y = 45 + 180;
+    game.scene.add(staticRing);
+    game.scene.add(game.ring);
 
     this.config = {
       font: "Roboto Mono",
-      size: 10,
-      padding: 10,
-      colour: "#0xffffa0",
-      width: 1024,
-      height: 256,
+      size: 15,
+      padding: 15,
+      colour: "#0xffffff",
+      width: 2048,
+      height: 228,
     };
 
     this.ringCanvas = this.createRingCanvas(
@@ -1288,15 +1351,15 @@ class Player {
     const clip = this.local
       ? this.animations[name]
       : THREE.AnimationClip.parse(
-          THREE.AnimationClip.toJSON(this.animations[name])
-        );
+        THREE.AnimationClip.toJSON(this.animations[name])
+      );
     const action = this.mixer.clipAction(clip);
     action.time = 0;
     this.mixer.stopAllAction();
     this.actionName = name;
     this.actionTime = Date.now();
 
-    action.fadeIn(1);
+    action.fadeIn(0.5);
     action.play();
   }
 
