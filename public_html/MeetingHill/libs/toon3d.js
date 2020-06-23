@@ -1,4 +1,4 @@
-class Easing{
+export class Easing{
 	// t: current time, b: begInnIng value, c: change In value, d: duration
 	constructor(start, end, duration, startTime=0, type='linear'){
 		this.b = start;
@@ -196,7 +196,7 @@ class Easing{
 	}
 }
 
-class Tween{
+export class Tween{
 	constructor(target, channel, endValue, duration, oncomplete, easing="inOutQuad"){
 		this.target = target;
 		this.channel = channel;
@@ -221,7 +221,7 @@ class Tween{
 		}
 	}
 }
-class SFX{
+export class SFX{
 	constructor(options){
 		this.context = options.context;
 		const volume = (options.volume!=undefined) ? options.volume : 1.0;
@@ -330,7 +330,7 @@ class SFX{
 	}
 }
 
-class JoyStick{
+export class JoyStick{
 	constructor(options){
 		const circle = document.createElement("div");
 		circle.id = "joystick";
@@ -419,7 +419,7 @@ class JoyStick{
 	}
 }
 
-class Preloader{
+export class Preloader{
 	constructor(options){
 		this.managerDone = false;
 		this.assets = {};
