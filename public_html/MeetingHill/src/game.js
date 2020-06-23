@@ -93,7 +93,8 @@ export default class Game {
     options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainTextureBaked.jpg`);
 
     // options.assets.push(`${this.assetsPath}/HDRITerrain.json`);
-    //options.assets.push(`${this.assetsPath}/CloudHemisphere.json`);
+    //options.assets.push(`${this.assetsPath}TerrainOBJ/cloudHemi.obj`);
+    //options.assets.push(`${this.assetsPath}TerrainOBJ/cloudAlpha.jpg`);
 
     this.mode = this.modes.PRELOAD;
 
@@ -396,17 +397,33 @@ export default class Game {
                   "assets/TerrainOBJ/WoodRoughness.jpg"
                 );
 
-                child.material = new THREE.MeshStandardMaterial();
+                child.material = new THREE.MeshBasicMaterial();
                 child.material.map = woodDiffuse;
                 child.material.roughnessMap = woodRoughness;
                 child.material.roughness = 1;
+
               } else {
                 if (child.name.startsWith("Cable")) {
-                  child.material = new THREE.MeshStandardMaterial();
-                  child.material.map = 0x000000;
-                  child.material.roughness = 1;
+                  child.material = new THREE.MeshBasicMaterial();
+                  child.material.color = 0x000000;
+                  child.material.transparent = true;
+                  child.material.opacity = 1;
+                  child.receiveShadow = false;
+                }
+                else {
+                  if (child.name.startsWith("rug")) {
+                    var rugDiffuse = new THREE.TextureLoader().load("assets/TerrainOBJ/rug.jpg");
+                    var rugAlpha = new THREE.TextureLoader().load("assets/TerrainOBJ/rugAlpha.jpg");
+                    child.material = new THREE.MeshBasicMaterial();
+                    child.material.map = rugDiffuse;
+                    child.material.transparent = true;
+                    child.material.alphaMap = rugAlpha;
+                  }
                 }
               }
+
+
+
             }
             child.receiveShadow = true;
           }
@@ -671,7 +688,7 @@ export default class Game {
 
     this.ringContext.clearRect(0, 0, this.config.width, this.config.height);
 
-    this.ringContext.drawImage(this.tempCanvas, 0, -1);
+    this.ringContext.drawImage(this.tempCanvas, 0, -0.5);
 
     this.tempContext.clearRect(0, 0, this.config.width, this.config.height);
 
@@ -910,6 +927,7 @@ export default class Game {
   }
 
   animate() {
+    //console.log(player.object.position);
     const game = this;
     const dt = this.clock.getDelta();
     //console.log(this.player.object.position.x,this.player.object.position.y,this.player.object.position.z)
@@ -1006,8 +1024,8 @@ class Player {
     const player = this;
 
     player.object = new THREE.Object3D();
-    player.object.position.set(0, 0, 300);
-    player.object.rotation.set(0, -45, 0);
+    player.object.position.set(-1247, -309.6, -6.8);
+    player.object.rotation.set(0, 1.2, 0);
     player.object.scale.set(0.1, 0.1, 0.1);
 
     loader.load(`${game.assetsPath}fbx/anims/${model}.fbx`, function (object) {
