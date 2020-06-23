@@ -3,11 +3,11 @@ const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 
-app.use(express.static('../../public_html/MeetingHill/'));
+app.use(express.static('../../public_html/MeetingHill/dist/'));
 app.use(express.static('../../public_html/libs'));
-app.use(express.static('../../public_html/MeetingHill/'));
+// app.use(express.static('../../public_html/MeetingHill/'));
 app.get('/',function(req, res) {
-    res.sendFile(__dirname + '../../public_html/MeetingHill/index.html');
+    res.sendFile(path, {'root': 'public_html/MeetingHill/dist/index.html'});
 });
 
 io.sockets.on('connection', function(socket){

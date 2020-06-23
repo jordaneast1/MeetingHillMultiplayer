@@ -1,4 +1,4 @@
-class Easing{
+export class Easing{
 	// t: current time, b: begInnIng value, c: change In value, d: duration
 	constructor(start, end, duration, startTime=0, type='linear'){
 		this.b = start;
@@ -196,7 +196,7 @@ class Easing{
 	}
 }
 
-class Tween{
+export class Tween{
 	constructor(target, channel, endValue, duration, oncomplete, easing="inOutQuad"){
 		this.target = target;
 		this.channel = channel;
@@ -221,7 +221,7 @@ class Tween{
 		}
 	}
 }
-class SFX{
+export class SFX{
 	constructor(options){
 		this.context = options.context;
 		const volume = (options.volume!=undefined) ? options.volume : 1.0;
@@ -330,10 +330,11 @@ class SFX{
 	}
 }
 
-class JoyStick{
+export class JoyStick{
 	constructor(options){
 		const circle = document.createElement("div");
-		circle.style.cssText = "position:absolute; bottom:35px; width:80px; height:80px; background:rgba(126, 126, 126, 0.5); border:#444 solid medium; border-radius:50%; left:50%; transform:translateX(-50%);";
+		circle.id = "joystick";
+		circle.style.cssText = " position:absolute; bottom:38px; width:80px; height:80px; background:rgba(126, 126, 126, 0.5); border:#444 solid medium; border-radius:50%; left:50%; transform:translateX(-50%);";
 		const thumb = document.createElement("div");
 		thumb.style.cssText = "position: absolute; left: 20px; top: 20px; width: 40px; height: 40px; border-radius: 50%; background: #fff;";
 		circle.appendChild(thumb);
@@ -418,7 +419,7 @@ class JoyStick{
 	}
 }
 
-class Preloader{
+export class Preloader{
 	constructor(options){
 		this.managerDone = false;
 		this.assets = {};
