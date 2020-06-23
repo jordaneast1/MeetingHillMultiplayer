@@ -1,17 +1,17 @@
-import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
-import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
-import * as THREE from 'three';
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import * as THREE from "three";
 import io from "socket.io-client";
 import Stats from "stats.js";
 import { SFX, Preloader, JoyStick } from "../libs/toon3d.js";
-import { BloomEffect, EffectComposer, EffectPass, RenderPass } from "postprocessing";
-// import BloomEffect from "./node_modules/three/examples/jsm/postprocessing/BloomPass.js";
-// import RenderPass  from "./node_modules/three/examples/jsm/postprocessing/RenderPass.js";
-
-// import EffectComposer from "./node_modules/three/examples/jsm/postprocessing/EffectComposer.js";
-
-// import EffectPass from "./node_modules/three/examples/jsm/postprocessing/EffectPass.js";
-
+import {
+  BloomEffect,
+  EffectComposer,
+  EffectPass,
+  RenderPass,
+} from "postprocessing";
+import { AfterimagePass } from "three/examples/jsm/postprocessing/AfterimagePass";
+import { PositionalAudioHelper } from "three/examples/jsm/helpers/PositionalAudioHelper";
 
 export default class Game {
   constructor() {
@@ -87,7 +87,7 @@ export default class Game {
     this.anims.forEach(function (anim) {
       options.assets.push(`${game.assetsPath}fbx/anims/${anim}.fbx`);
     });
-    options.assets.push(`${game.assetsPath}fbx/people/Idle.fbx`);
+    options.assets.push(`${game.assetsPath}fbx/anims/Idle.fbx`);
 
     options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainWCollider.obj`);
     options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainTextureBaked.jpg`);
@@ -133,11 +133,8 @@ export default class Game {
     //this.scene.fog = new THREE.FogExp2(0xfffaaa, 0.0001);
     //this.scene.fog = new THREE.FogExp2(0xffffff, 0.0001);
 
-
-    const hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x061A31, 0.5);
+    const hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x061a31, 0.5);
     this.scene.add(hemiLight);
-
-
 
     //const ambient = new THREE.AmbientLight(0x647687, 0);
     //this.scene.add(ambient);
@@ -168,7 +165,7 @@ export default class Game {
     const game = this;
 
     this.player = new PlayerLocal(this);
-    
+
     this.loadEnvironment(loader);
 
     this.createTextRing();
@@ -178,14 +175,13 @@ export default class Game {
     //this.speechBubble.mesh.position.set(0, 350, 0);
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    
+
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
     this.container.appendChild(this.renderer.domElement);
 
     this.initPostProcessing();
-
 
     if ("ontouchstart" in window) {
       window.addEventListener(
@@ -208,6 +204,8 @@ export default class Game {
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
     this.composer.addPass(new EffectPass(this.camera, new BloomEffect()));
+    //var afterimagePass = new AfterimagePass();
+    //this.composer.addPass( afterimagePass );
   }
 
   //sound
@@ -223,7 +221,10 @@ export default class Game {
     });
 
     this.listener = new THREE.AudioListener();
-    this.player.object.add(this.listener);
+    var ears = new THREE.Object3D();
+    ears.rotation.y = 180;
+    ears.add(this.listener);
+    this.player.object.add(ears);
 
     this.radioElement = document.getElementById("azuracast");
     this.radioElement.volume = 1;
@@ -233,6 +234,7 @@ export default class Game {
   }
 
   initSpeakers() {
+    //AZURACAST
     var geometry = new THREE.BoxGeometry(10, 10, 10);
     var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     var cube = new THREE.Mesh(geometry, material);
@@ -242,14 +244,88 @@ export default class Game {
       console.log("found elem");
       var positionalAudio = new THREE.PositionalAudio(this.listener);
       positionalAudio.setMediaElementSource(this.radioElement);
-      positionalAudio.setRefDistance(200);
-      positionalAudio.setDirectionalCone(360, 360, 1);
+      positionalAudio.setRolloffFactor(1);
+      positionalAudio.setDistanceModel("exponential");
+      positionalAudio.setRefDistance(150);
+      positionalAudio.setDirectionalCone(180, 180, 1);
       cube.add(positionalAudio);
+      var helper = new PositionalAudioHelper(positionalAudio);
+      positionalAudio.add(helper);
     } else {
       console.log("no azura cast DOM element");
     }
-
     this.scene.add(cube);
+
+    //SOUND 1
+    var cube1 = new THREE.Mesh(geometry, material);
+    var sound1 = new THREE.PositionalAudio(this.listener);
+    var audioLoader1 = new THREE.AudioLoader();
+    audioLoader1.load(`${this.assetsPath}sfx/04birds.mp3`, function (buffer) {
+      sound1.setBuffer(buffer);
+      sound1.setRolloffFactor(1);
+      sound1.setDistanceModel("exponential");
+      sound1.setRefDistance(10);
+      sound1.setDirectionalCone(180, 180, 1);
+      sound1.play();
+      sound1.setLoop( true );   
+      sound1.setVolume( 1 );
+
+     });
+    var material1 = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    var cube1 = new THREE.Mesh(geometry, material1);
+    cube1.position.set(-860, -170, -90);
+    cube1.add(sound1);
+    this.scene.add(cube1);
+    var helper1 = new PositionalAudioHelper(positionalAudio);
+    sound1.add(helper1);
+
+    //SOUND 2
+    var cube2 = new THREE.Mesh(geometry, material);
+    var sound2 = new THREE.PositionalAudio(this.listener);
+    var audioLoader2 = new THREE.AudioLoader();
+    audioLoader2.load(`${this.assetsPath}sfx/Clouds_1_pad.mp3`, function (
+      buffer
+    ) {
+      sound2.setBuffer(buffer);
+      sound2.setRolloffFactor(1);
+      sound2.setRefDistance(10);
+      sound2.setDirectionalCone(180, 180, 1);
+      sound2.play();
+      sound2.setLoop( true );
+      sound2.setVolume( 0.5 );
+
+    });
+    var material2 = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+    var cube2 = new THREE.Mesh(geometry, material2);
+    cube2.position.set(-455, -140, 381);
+    cube2.add(sound2);
+    this.scene.add(cube2);
+    var helper2 = new PositionalAudioHelper(positionalAudio);
+    sound2.add(helper2);
+
+    //SOUND 3
+    var cube3 = new THREE.Mesh(geometry, material);
+    var sound3 = new THREE.PositionalAudio(this.listener);
+    var audioLoader3 = new THREE.AudioLoader();
+    audioLoader3.load(`${this.assetsPath}sfx/808_t1.mp3`, function (
+      buffer
+    ) {
+      sound3.setBuffer(buffer);
+      sound3.setRolloffFactor(1);
+      sound3.setRefDistance(15);
+      sound3.setDirectionalCone(180, 180, 1);
+      sound3.play();
+      sound3.setLoop( true );
+      sound3.setVolume( 1 );
+
+    });
+    var material3 = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+    var cube3 = new THREE.Mesh(geometry, material3);
+    cube3.position.set(-597, 138, -887);
+    cube3.add(sound3);
+    this.scene.add(cube3);
+    var helper3 = new PositionalAudioHelper(positionalAudio);
+    sound3.add(helper3);
   }
 
   initJoystick() {
@@ -283,7 +359,9 @@ export default class Game {
 
     const objLoader = new OBJLoader(this.manager);
 
-    objLoader.load('assets/TerrainOBJ/TerrainWCollider2.obj', function (object) {
+    objLoader.load("assets/TerrainOBJ/TerrainWCollider2.obj", function (
+      object
+    ) {
       object.scale.set(2, 2, 2);
       object.position.set(0, 0, 0);
       object.rotation.set(0, 160, 0);
@@ -297,11 +375,12 @@ export default class Game {
             game.colliders.push(child);
             // console.log(child.material.visible)
             child.material.visible = false;
-
           } else {
             if (child.name.startsWith("Polygon_Reduction")) {
               console.log(child.name);
-              var texture = new THREE.TextureLoader().load("assets/TerrainOBJ/TerrainTextureBaked.jpg");
+              var texture = new THREE.TextureLoader().load(
+                "assets/TerrainOBJ/TerrainTextureBaked.jpg"
+              );
 
               child.material = new THREE.MeshStandardMaterial();
               //child.material.colour = '#000000',
@@ -310,30 +389,29 @@ export default class Game {
             } else {
               //Speakers
               if (child.name.startsWith("MainSpeaker")) {
-                var woodDiffuse = new THREE.TextureLoader().load("assets/TerrainOBJ/WoodAlbedo2.jpg");
-                var woodRoughness = new THREE.TextureLoader().load("assets/TerrainOBJ/WoodRoughness.jpg");
+                var woodDiffuse = new THREE.TextureLoader().load(
+                  "assets/TerrainOBJ/WoodAlbedo2.jpg"
+                );
+                var woodRoughness = new THREE.TextureLoader().load(
+                  "assets/TerrainOBJ/WoodRoughness.jpg"
+                );
 
                 child.material = new THREE.MeshStandardMaterial();
                 child.material.map = woodDiffuse;
                 child.material.roughnessMap = woodRoughness;
                 child.material.roughness = 1;
-              
-              }else{
+              } else {
                 if (child.name.startsWith("Cable")) {
                   child.material = new THREE.MeshStandardMaterial();
                   child.material.map = 0x000000;
                   child.material.roughness = 1;
-                  }
                 }
-  
-              
-            
               }
-              child.receiveShadow = true;
             }
             child.receiveShadow = true;
           }
-        
+          child.receiveShadow = true;
+        }
       });
     });
 
@@ -413,8 +491,9 @@ export default class Game {
       true
     );
 
-
-    var orbTexture = new THREE.TextureLoader().load("assets/images/OrbBump.jpg");
+    var orbTexture = new THREE.TextureLoader().load(
+      "assets/images/OrbBump.jpg"
+    );
 
     const assetsUrl = "assets/images/";
     const urls = [
@@ -453,7 +532,6 @@ export default class Game {
     //   opacity: 0.1,
     //   depthWrite: false,
     // });
-
 
     var staticRing = new THREE.Mesh(geometry, staticmaterial);
     staticRing.position.set(500, 250, 300);
@@ -834,13 +912,13 @@ export default class Game {
   animate() {
     const game = this;
     const dt = this.clock.getDelta();
+    //console.log(this.player.object.position.x,this.player.object.position.y,this.player.object.position.z)
 
     requestAnimationFrame(function () {
       game.animate();
     });
     //this.composer.render(clock.getDelta());
     this.stats.begin();
-
 
     this.updateRemotePlayers(dt);
 
@@ -1351,8 +1429,8 @@ class Player {
     const clip = this.local
       ? this.animations[name]
       : THREE.AnimationClip.parse(
-        THREE.AnimationClip.toJSON(this.animations[name])
-      );
+          THREE.AnimationClip.toJSON(this.animations[name])
+        );
     const action = this.mixer.clipAction(clip);
     action.time = 0;
     this.mixer.stopAllAction();

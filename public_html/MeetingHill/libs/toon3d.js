@@ -444,6 +444,8 @@ export class Preloader{
 			this.domElement.style.justifyContent = 'center';
 			this.domElement.style.zIndex = '1111';
 			const barBase = document.createElement("div");
+			barBase.style.position = 'absolute';
+			barBase.style.top = '200px';
 			barBase.style.background = '#aaa';
 			barBase.style.width = '50%';
 			barBase.style.minWidth = '250px';
@@ -452,6 +454,7 @@ export class Preloader{
 			this.domElement.appendChild(barBase);
 			const bar = document.createElement("div");
 			bar.style.background = '#fa2';
+			//bar.style.top = '50%';
 			bar.style.width = '50%';
 			bar.style.borderRadius = '10px';
 			bar.style.height = '100%';
