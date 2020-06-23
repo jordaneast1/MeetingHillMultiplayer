@@ -1,5 +1,5 @@
-import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
-import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import * as THREE from 'three';
 import io from "socket.io-client";
 import Stats from "stats.js";
@@ -93,7 +93,8 @@ export default class Game {
     options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainTextureBaked.jpg`);
 
     // options.assets.push(`${this.assetsPath}/HDRITerrain.json`);
-    //options.assets.push(`${this.assetsPath}/CloudHemisphere.json`);
+    //options.assets.push(`${this.assetsPath}TerrainOBJ/cloudHemi.obj`);
+    //options.assets.push(`${this.assetsPath}TerrainOBJ/cloudAlpha.jpg`);
 
     this.mode = this.modes.PRELOAD;
 
@@ -168,7 +169,7 @@ export default class Game {
     const game = this;
 
     this.player = new PlayerLocal(this);
-    
+
     this.loadEnvironment(loader);
 
     this.createTextRing();
@@ -178,7 +179,7 @@ export default class Game {
     //this.speechBubble.mesh.position.set(0, 350, 0);
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    
+
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
@@ -313,27 +314,39 @@ export default class Game {
                 var woodDiffuse = new THREE.TextureLoader().load("assets/TerrainOBJ/WoodAlbedo2.jpg");
                 var woodRoughness = new THREE.TextureLoader().load("assets/TerrainOBJ/WoodRoughness.jpg");
 
-                child.material = new THREE.MeshStandardMaterial();
+                child.material = new THREE.MeshBasicMaterial();
                 child.material.map = woodDiffuse;
                 child.material.roughnessMap = woodRoughness;
                 child.material.roughness = 1;
-              
-              }else{
+
+              } else {
                 if (child.name.startsWith("Cable")) {
-                  child.material = new THREE.MeshStandardMaterial();
-                  child.material.map = 0x000000;
-                  child.material.roughness = 1;
+                  child.material = new THREE.MeshBasicMaterial();
+                  child.material.color = 0x000000;
+                  child.material.transparent = true;
+                  child.material.opacity = 1;
+                  child.receiveShadow = false;
+                }
+                else {
+                  if (child.name.startsWith("rug")) {
+                    var rugDiffuse = new THREE.TextureLoader().load("assets/TerrainOBJ/rug.jpg");
+                    var rugAlpha = new THREE.TextureLoader().load("assets/TerrainOBJ/rugAlpha.jpg");
+                    child.material = new THREE.MeshBasicMaterial();
+                    child.material.map = rugDiffuse;
+                    child.material.transparent = true;
+                    child.material.alphaMap = rugAlpha;
                   }
                 }
-  
-              
-            
               }
-              child.receiveShadow = true;
+
+
+
             }
             child.receiveShadow = true;
           }
-        
+          child.receiveShadow = true;
+        }
+
       });
     });
 
@@ -593,7 +606,7 @@ export default class Game {
 
     this.ringContext.clearRect(0, 0, this.config.width, this.config.height);
 
-    this.ringContext.drawImage(this.tempCanvas, 0, -1);
+    this.ringContext.drawImage(this.tempCanvas, 0, -0.5);
 
     this.tempContext.clearRect(0, 0, this.config.width, this.config.height);
 
@@ -928,8 +941,8 @@ class Player {
     const player = this;
 
     player.object = new THREE.Object3D();
-    player.object.position.set(0, 0, 300);
-    player.object.rotation.set(0, -45, 0);
+    player.object.position.set(-1247, -309.6, -6.8);
+    player.object.rotation.set(0, 1.2, 0);
     player.object.scale.set(0.1, 0.1, 0.1);
 
     loader.load(`${game.assetsPath}fbx/anims/${model}.fbx`, function (object) {
