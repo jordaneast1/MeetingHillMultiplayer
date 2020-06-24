@@ -89,8 +89,20 @@ export default class Game {
     });
     options.assets.push(`${game.assetsPath}fbx/people/Idle.fbx`);
 
-    options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainWCollider.obj`);
+    options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainWCollider2.obj`);
     options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainTextureBaked.jpg`);
+    options.assets.push(`${game.assetsPath}TerrainOBJ/WoodAlbedo2.jpg`);
+    options.assets.push(`${game.assetsPath}TerrainOBJ/WoodRoughness.jpg`);
+    options.assets.push(`${game.assetsPath}TerrainOBJ/rug.jpg`);
+    options.assets.push(`${game.assetsPath}TerrainOBJ/rugAlpha.jpg`);
+    options.assets.push(`${game.assetsPath}images/OrbBump.jpg`);
+    options.assets.push(`${game.assetsPath}images/orbEnviromap.jpg`);
+
+    options.assets.push(`${game.assetsPath}sfx/birds_short.mp3`);
+    options.assets.push(`${game.assetsPath}sfx/808_t1.mp3`);
+    options.assets.push(`${game.assetsPath}sfx/Clouds_1_pad.mp3`);
+    options.assets.push(`${game.assetsPath}sfx/cold_stormy_wind.mp3`);
+
 
     // options.assets.push(`${this.assetsPath}/HDRITerrain.json`);
     //options.assets.push(`${this.assetsPath}TerrainOBJ/cloudHemi.obj`);
@@ -213,27 +225,31 @@ export default class Game {
 
   //sound
   initSfx() {
-    this.sfx = {};
-    this.sfx.context = new (window.AudioContext || window.webkitAudioContext)();
-    this.sfx.wind = new SFX({
-      context: this.sfx.context,
-      src: { mp3: `${this.assetsPath}sfx/cold_stormy_wind.mp3` },
-      loop: true,
-      autoplay: true,
-      volume: 0.25,
-    });
+    // this.sfx = {};
+    // this.sfx.context = new (window.AudioContext || window.webkitAudioContext)();
+    // this.sfx.wind = new SFX({
+    //   context: this.sfx.context,
+    //   src: { mp3: `${this.assetsPath}sfx/cold_stormy_wind.mp3` },
+    //   loop: true,
+    //   autoplay: true,
+    //   volume: 0.1,
+    // });
 
     this.listener = new THREE.AudioListener();
     this.player.object.add(this.listener);
 
     this.radioElement = document.getElementById("azuracast");
-    this.radioElement.volume = 1;
-    this.radioElement.play();
+    this.radioElement.volume = 0;
+    //this.radioElement.play();
 
     this.initSpeakers();
   }
 
   initSpeakers() {
+    //this.sounds = {};
+
+
+    //AZURACAST
     var geometry = new THREE.BoxGeometry(10, 10, 10);
     var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     var cube = new THREE.Mesh(geometry, material);
@@ -243,14 +259,116 @@ export default class Game {
       console.log("found elem");
       var positionalAudio = new THREE.PositionalAudio(this.listener);
       positionalAudio.setMediaElementSource(this.radioElement);
-      positionalAudio.setRefDistance(200);
-      positionalAudio.setDirectionalCone(360, 360, 1);
+      positionalAudio.setRolloffFactor(1);
+      positionalAudio.setDistanceModel("inverse");
+      positionalAudio.setRefDistance(30);
+      positionalAudio.setDirectionalCone(180, 180, 1);
+      positionalAudio.setVolume( 7 );
+
       cube.add(positionalAudio);
+      var helper = new PositionalAudioHelper(positionalAudio);
+      positionalAudio.add(helper);
+
     } else {
       console.log("no azura cast DOM element");
     }
-
     this.scene.add(cube);
+    this.radioElement.volume = 1;
+    //this.sounds.push(positionalAudio);
+
+    //SOUND 1
+    var cube1 = new THREE.Mesh(geometry, material);
+    var sound1 = new THREE.PositionalAudio(this.listener);
+    var audioLoader1 = new THREE.AudioLoader();
+    audioLoader1.load(`${this.assetsPath}sfx/birds_short.mp3`, function (buffer) {
+      sound1.setBuffer(buffer);
+      sound1.setRolloffFactor(1);
+      sound1.setDistanceModel("exponential");
+      sound1.setRefDistance(10);
+      sound1.setDirectionalCone(180, 180, 1);
+      sound1.play();
+      sound1.setLoop( true );   
+      sound1.setVolume( 9 );
+
+     });
+    var material1 = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    var cube1 = new THREE.Mesh(geometry, material1);
+    cube1.position.set(-860, -170, -90);
+    cube1.add(sound1);
+    this.scene.add(cube1);
+    //var helper1 = new PositionalAudioHelper(positionalAudio);
+    //sound1.add(helper1);
+    //this.sounds.push(sound1);
+
+
+    //SOUND 2
+    var cube2 = new THREE.Mesh(geometry, material);
+    var sound2 = new THREE.PositionalAudio(this.listener);
+    var audioLoader2 = new THREE.AudioLoader();
+    audioLoader2.load(`${this.assetsPath}sfx/Clouds_1_pad.mp3`, function (
+      buffer
+    ) {
+      sound2.setBuffer(buffer);
+      sound2.setRolloffFactor(.9);
+      sound2.setRefDistance(5);
+      sound2.setDirectionalCone(180, 180, 1);
+      sound2.play();
+      sound2.setLoop( true );
+      sound2.setVolume( 3 );
+
+    });
+    var material2 = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+    var cube2 = new THREE.Mesh(geometry, material2);
+    cube2.position.set(-455, -140, 381);
+    cube2.add(sound2);
+    this.scene.add(cube2);
+    // var helper2 = new PositionalAudioHelper(positionalAudio);
+    // sound2.add(helper2);
+    //this.sounds.push(sound2);
+
+
+    //SOUND 3
+    var cube3 = new THREE.Mesh(geometry, material);
+    var sound3 = new THREE.PositionalAudio(this.listener);
+    var audioLoader3 = new THREE.AudioLoader();
+    audioLoader3.load(`${this.assetsPath}sfx/808_t1.mp3`, function (
+      buffer
+    ) {
+      sound3.setBuffer(buffer);
+      sound3.setRolloffFactor(1);
+      sound3.setRefDistance(15);
+      sound3.setDirectionalCone(180, 180, 1);
+      sound3.play();
+      sound3.setLoop( true );
+      sound3.setVolume( 1 );
+
+    });
+    var soundWind = new THREE.PositionalAudio(this.listener);
+    var audioLoaderWind = new THREE.AudioLoader();
+    audioLoaderWind.load(`${this.assetsPath}sfx/cold_stormy_wind.mp3`, function (
+      buffer
+    ) {
+      soundWind.setBuffer(buffer);
+      soundWind.setRolloffFactor(1);
+      soundWind.setRefDistance(300);
+      soundWind.setDirectionalCone(180, 180, 1);
+      soundWind.play();
+      soundWind.setLoop( true );
+      soundWind.setVolume( .5 );
+
+    });
+    var material3 = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+    var cube3 = new THREE.Mesh(geometry, material3);
+    cube3.position.set(-597, 138, -887);
+    cube3.add(sound3);
+    cube3.add(soundWind);
+    this.scene.add(cube3);
+    // var helper3 = new PositionalAudioHelper(positionalAudio);
+    // sound3.add(helper3);
+    //this.sounds.push(soundWind);
+    //this.sounds.push(sound3);
+
+
   }
 
   initJoystick() {
@@ -491,7 +609,7 @@ export default class Game {
       padding: 15,
       colour: "#0xffffff",
       width: 2048,
-      height: 228,
+      height: 128,
     };
 
     this.ringCanvas = this.createRingCanvas(
@@ -606,7 +724,7 @@ export default class Game {
 
     this.ringContext.clearRect(0, 0, this.config.width, this.config.height);
 
-    this.ringContext.drawImage(this.tempCanvas, 0, -0.5);
+    this.ringContext.drawImage(this.tempCanvas, 0, -1);
 
     this.tempContext.clearRect(0, 0, this.config.width, this.config.height);
 
