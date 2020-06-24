@@ -89,13 +89,19 @@ export default class Game {
     });
     options.assets.push(`${game.assetsPath}fbx/anims/Idle.fbx`);
 
-    options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainWCollider.obj`);
+    options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainWCollider2.obj`);
     options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainTextureBaked.jpg`);
-    options.assets.push(`${game.assetsPath}sfx/04birds.mp3`);
+    options.assets.push(`${game.assetsPath}TerrainOBJ/WoodAlbedo2.jpg`);
+    options.assets.push(`${game.assetsPath}TerrainOBJ/WoodRoughness.jpg`);
+    options.assets.push(`${game.assetsPath}TerrainOBJ/rug.jpg`);
+    options.assets.push(`${game.assetsPath}TerrainOBJ/rugAlpha.jpg`);
+    options.assets.push(`${game.assetsPath}images/OrbBump.jpg`);
+    options.assets.push(`${game.assetsPath}images/orbEnviromap.jpg`);
+
+    options.assets.push(`${game.assetsPath}sfx/birds_short.mp3`);
     options.assets.push(`${game.assetsPath}sfx/808_t1.mp3`);
     options.assets.push(`${game.assetsPath}sfx/Clouds_1_pad.mp3`);
     options.assets.push(`${game.assetsPath}sfx/cold_stormy_wind.mp3`);
-
 
 
     // options.assets.push(`${this.assetsPath}/HDRITerrain.json`);
@@ -272,7 +278,7 @@ export default class Game {
     var cube1 = new THREE.Mesh(geometry, material);
     var sound1 = new THREE.PositionalAudio(this.listener);
     var audioLoader1 = new THREE.AudioLoader();
-    audioLoader1.load(`${this.assetsPath}sfx/04birds.mp3`, function (buffer) {
+    audioLoader1.load(`${this.assetsPath}sfx/birds_short.mp3`, function (buffer) {
       sound1.setBuffer(buffer);
       sound1.setRolloffFactor(1);
       sound1.setDistanceModel("exponential");
@@ -599,7 +605,7 @@ export default class Game {
       padding: 15,
       colour: "#0xffffff",
       width: 2048,
-      height: 228,
+      height: 128,
     };
 
     this.ringCanvas = this.createRingCanvas(
