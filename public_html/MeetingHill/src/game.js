@@ -91,6 +91,12 @@ export default class Game {
 
     options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainWCollider.obj`);
     options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainTextureBaked.jpg`);
+    options.assets.push(`${game.assetsPath}sfx/04birds.mp3`);
+    options.assets.push(`${game.assetsPath}sfx/808_t1.mp3`);
+    options.assets.push(`${game.assetsPath}sfx/Clouds_1_pad.mp3`);
+    options.assets.push(`${game.assetsPath}sfx/cold_stormy_wind.mp3`);
+
+
 
     // options.assets.push(`${this.assetsPath}/HDRITerrain.json`);
     //options.assets.push(`${this.assetsPath}TerrainOBJ/cloudHemi.obj`);
@@ -211,15 +217,15 @@ export default class Game {
 
   //sound
   initSfx() {
-    this.sfx = {};
-    this.sfx.context = new (window.AudioContext || window.webkitAudioContext)();
-    this.sfx.wind = new SFX({
-      context: this.sfx.context,
-      src: { mp3: `${this.assetsPath}sfx/cold_stormy_wind.mp3` },
-      loop: true,
-      autoplay: true,
-      volume: 0.1,
-    });
+    // this.sfx = {};
+    // this.sfx.context = new (window.AudioContext || window.webkitAudioContext)();
+    // this.sfx.wind = new SFX({
+    //   context: this.sfx.context,
+    //   src: { mp3: `${this.assetsPath}sfx/cold_stormy_wind.mp3` },
+    //   loop: true,
+    //   autoplay: true,
+    //   volume: 0.1,
+    // });
 
     this.listener = new THREE.AudioListener();
     var ears = new THREE.Object3D();
@@ -228,7 +234,7 @@ export default class Game {
     this.player.object.add(ears);
 
     this.radioElement = document.getElementById("azuracast");
-    this.radioElement.volume = 1;
+    this.radioElement.volume = 0;
     this.radioElement.play();
 
     this.initSpeakers();
@@ -246,16 +252,21 @@ export default class Game {
       var positionalAudio = new THREE.PositionalAudio(this.listener);
       positionalAudio.setMediaElementSource(this.radioElement);
       positionalAudio.setRolloffFactor(1);
-      positionalAudio.setDistanceModel("exponential");
-      positionalAudio.setRefDistance(150);
+      positionalAudio.setDistanceModel("inverse");
+      positionalAudio.setRefDistance(40);
       positionalAudio.setDirectionalCone(180, 180, 1);
+      positionalAudio.setVolume( 7 );
+
       cube.add(positionalAudio);
       var helper = new PositionalAudioHelper(positionalAudio);
       positionalAudio.add(helper);
+
     } else {
       console.log("no azura cast DOM element");
     }
     this.scene.add(cube);
+    this.radioElement.volume = 1;
+
 
     //SOUND 1
     var cube1 = new THREE.Mesh(geometry, material);
@@ -269,7 +280,7 @@ export default class Game {
       sound1.setDirectionalCone(180, 180, 1);
       sound1.play();
       sound1.setLoop( true );   
-      sound1.setVolume( 1 );
+      sound1.setVolume( 9 );
 
      });
     var material1 = new THREE.MeshBasicMaterial({ color: 0xff0000 });
@@ -288,12 +299,12 @@ export default class Game {
       buffer
     ) {
       sound2.setBuffer(buffer);
-      sound2.setRolloffFactor(1);
-      sound2.setRefDistance(10);
+      sound2.setRolloffFactor(.9);
+      sound2.setRefDistance(5);
       sound2.setDirectionalCone(180, 180, 1);
       sound2.play();
       sound2.setLoop( true );
-      sound2.setVolume( 0.5 );
+      sound2.setVolume( 3 );
 
     });
     var material2 = new THREE.MeshBasicMaterial({ color: 0xff00ff });
@@ -320,10 +331,25 @@ export default class Game {
       sound3.setVolume( 1 );
 
     });
+    var soundWind = new THREE.PositionalAudio(this.listener);
+    var audioLoaderWind = new THREE.AudioLoader();
+    audioLoaderWind.load(`${this.assetsPath}sfx/cold_stormy_wind.mp3`, function (
+      buffer
+    ) {
+      soundWind.setBuffer(buffer);
+      soundWind.setRolloffFactor(1);
+      soundWind.setRefDistance(300);
+      soundWind.setDirectionalCone(180, 180, 1);
+      soundWind.play();
+      soundWind.setLoop( true );
+      soundWind.setVolume( 1 );
+
+    });
     var material3 = new THREE.MeshBasicMaterial({ color: 0xff00ff });
     var cube3 = new THREE.Mesh(geometry, material3);
     cube3.position.set(-597, 138, -887);
     cube3.add(sound3);
+    cube3.add(soundWind);
     this.scene.add(cube3);
     var helper3 = new PositionalAudioHelper(positionalAudio);
     sound3.add(helper3);
@@ -688,7 +714,7 @@ export default class Game {
 
     this.ringContext.clearRect(0, 0, this.config.width, this.config.height);
 
-    this.ringContext.drawImage(this.tempCanvas, 0, -0.5);
+    this.ringContext.drawImage(this.tempCanvas, 0, 1);
 
     this.tempContext.clearRect(0, 0, this.config.width, this.config.height);
 
@@ -927,7 +953,6 @@ export default class Game {
   }
 
   animate() {
-    console.log(this.player.object.position);
     const game = this;
     const dt = this.clock.getDelta();
     //console.log(this.player.object.position.x,this.player.object.position.y,this.player.object.position.z)
