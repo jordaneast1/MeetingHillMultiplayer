@@ -102,6 +102,8 @@ export default class Game {
     options.assets.push(`${game.assetsPath}sfx/808_t1.mp3`);
     options.assets.push(`${game.assetsPath}sfx/Clouds_1_pad.mp3`);
     options.assets.push(`${game.assetsPath}sfx/cold_stormy_wind.mp3`);
+    options.assets.push(`${game.assetsPath}sfx/meetinghill_blips.mp3`);
+    options.assets.push(`${game.assetsPath}sfx/meetinghill_pad.mp3`);
 
 
     // options.assets.push(`${this.assetsPath}/HDRITerrain.json`);
@@ -377,6 +379,57 @@ export default class Game {
     //this.sounds.push(soundWind);
     //this.sounds.push(sound3);
 
+    //SOUND 4
+    var cube4 = new THREE.Mesh(geometry, material);
+    var sound4 = new THREE.PositionalAudio(this.listener);
+    var audioLoader4 = new THREE.AudioLoader();
+    audioLoader4.load(`${this.assetsPath}sfx/meetinghill_blips.mp3`, function (
+      buffer
+    ) {
+      sound4.setBuffer(buffer);
+      sound4.setRolloffFactor(.9);
+      sound4.setRefDistance(5);
+      sound4.setDirectionalCone(180, 180, 1);
+      sound4.play();
+      sound4.setLoop( true );
+      sound4.setVolume( 5 );
+
+    });
+    var material4 = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+    var cube4 = new THREE.Mesh(geometry, material4);
+    cube4.position.set(538, -30, -477);
+    cube4.add(sound4);
+    this.scene.add(cube4);
+    cube4.visible = false;
+    // var helper4 = new PositionalAudioHelper(positionalAudio);
+    // sound4.add(helper4);
+    //this.sounds.push(sound4);
+
+    //SOUND 5
+    var cube5 = new THREE.Mesh(geometry, material);
+    var sound5 = new THREE.PositionalAudio(this.listener);
+    var audioLoader5 = new THREE.AudioLoader();
+    audioLoader5.load(`${this.assetsPath}sfx/meetinghill_pad.mp3`, function (
+      buffer
+    ) {
+      sound5.setBuffer(buffer);
+      sound5.setRolloffFactor(.9);
+      sound5.setRefDistance(5);
+      sound5.setDirectionalCone(180, 180, 1);
+      sound5.play();
+      sound5.setLoop( true );
+      sound5.setVolume( 6 );
+
+    });
+    var material5 = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+    var cube5 = new THREE.Mesh(geometry, material5);
+    cube5.position.set(48, -75, -1063);
+    cube5.add(sound5);
+    this.scene.add(cube5);
+    cube5.visible = false;
+    // var helper4 = new PositionalAudioHelper(positionalAudio);
+    // sound4.add(helper4);
+    //this.sounds.push(sound4);
 
   }
 
