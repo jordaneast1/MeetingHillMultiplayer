@@ -266,8 +266,8 @@ export default class Game {
       positionalAudio.setVolume( 7 );
 
       cube.add(positionalAudio);
-      var helper = new PositionalAudioHelper(positionalAudio);
-      positionalAudio.add(helper);
+      // var helper = new PositionalAudioHelper(positionalAudio);
+      // positionalAudio.add(helper);
 
     } else {
       console.log("no azura cast DOM element");
