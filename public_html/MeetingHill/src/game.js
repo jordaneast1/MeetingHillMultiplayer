@@ -254,6 +254,7 @@ export default class Game {
     var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     var cube = new THREE.Mesh(geometry, material);
     cube.position.set(630, -50, 450);
+    cube.visible = false;
 
     if (this.radioElement != null) {
       console.log("found elem");
@@ -296,6 +297,7 @@ export default class Game {
     cube1.position.set(-860, -170, -90);
     cube1.add(sound1);
     this.scene.add(cube1);
+    cube1.visible = false;
     //var helper1 = new PositionalAudioHelper(positionalAudio);
     //sound1.add(helper1);
     //this.sounds.push(sound1);
@@ -322,6 +324,7 @@ export default class Game {
     cube2.position.set(-455, -140, 381);
     cube2.add(sound2);
     this.scene.add(cube2);
+    cube2.visible = false;
     // var helper2 = new PositionalAudioHelper(positionalAudio);
     // sound2.add(helper2);
     //this.sounds.push(sound2);
@@ -363,6 +366,7 @@ export default class Game {
     cube3.add(sound3);
     cube3.add(soundWind);
     this.scene.add(cube3);
+    cube3.visible = false;
     // var helper3 = new PositionalAudioHelper(positionalAudio);
     // sound3.add(helper3);
     //this.sounds.push(soundWind);
