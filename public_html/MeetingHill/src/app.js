@@ -41,6 +41,7 @@ const initAll = async () => {
 
     document.addEventListener("keyup", (e) => {
       if (e.code === "Escape") {
+        if (gameInit){
         if (!blocked){
           joystick.style.display = "none";
           blocker.style.display = "block";
@@ -52,6 +53,7 @@ const initAll = async () => {
           azura.volume = 1;
           blocked = false;
         }
+      }
 
       } else {
       }

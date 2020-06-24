@@ -235,7 +235,7 @@ export default class Game {
 
     this.radioElement = document.getElementById("azuracast");
     this.radioElement.volume = 0;
-    this.radioElement.play();
+    //this.radioElement.play();
 
     this.initSpeakers();
   }
@@ -253,7 +253,7 @@ export default class Game {
       positionalAudio.setMediaElementSource(this.radioElement);
       positionalAudio.setRolloffFactor(1);
       positionalAudio.setDistanceModel("inverse");
-      positionalAudio.setRefDistance(40);
+      positionalAudio.setRefDistance(30);
       positionalAudio.setDirectionalCone(180, 180, 1);
       positionalAudio.setVolume( 7 );
 
@@ -714,7 +714,7 @@ export default class Game {
 
     this.ringContext.clearRect(0, 0, this.config.width, this.config.height);
 
-    this.ringContext.drawImage(this.tempCanvas, 0, 1);
+    this.ringContext.drawImage(this.tempCanvas, 0, -1);
 
     this.tempContext.clearRect(0, 0, this.config.width, this.config.height);
 
