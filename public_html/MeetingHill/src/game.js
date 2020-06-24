@@ -927,7 +927,7 @@ export default class Game {
   }
 
   animate() {
-    //console.log(player.object.position);
+    console.log(this.player.object.position);
     const game = this;
     const dt = this.clock.getDelta();
     //console.log(this.player.object.position.x,this.player.object.position.y,this.player.object.position.z)

@@ -2,6 +2,9 @@
 
 newmtl default
 Kd 1 1 1
+Ks 1 1 1
+Ns 50
+illum 7
 
 newmtl Mat
 Ka 1 1 1
@@ -13,25 +16,13 @@ illum 7
 
 newmtl Wood_qklqdtp0
 Ka 1 1 1
-Kd 1 0.43333333730698 0
+Kd 1 1 1
 map_Kd tibheh2l_2K_Albedo.jpg
 Ks 1 1 1
 Ns 50
 illum 7
 
-newmtl default
-Kd 1 1 1
-Ks 1 1 1
-Ns 50
-illum 7
-
 newmtl default_1
-Kd 1 1 1
-Ks 1 1 1
-Ns 50
-illum 7
-
-newmtl Mat.1
 Kd 1 1 1
 Ks 1 1 1
 Ns 50
