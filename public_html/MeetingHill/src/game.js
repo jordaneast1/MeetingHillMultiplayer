@@ -1,17 +1,17 @@
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
-import * as THREE from "three";
+import * as THREE from 'three';
 import io from "socket.io-client";
 import Stats from "stats.js";
 import { SFX, Preloader, JoyStick } from "../libs/toon3d.js";
-import {
-  BloomEffect,
-  EffectComposer,
-  EffectPass,
-  RenderPass,
-} from "postprocessing";
-import { AfterimagePass } from "three/examples/jsm/postprocessing/AfterimagePass";
-import { PositionalAudioHelper } from "three/examples/jsm/helpers/PositionalAudioHelper";
+import { BloomEffect, EffectComposer, EffectPass, RenderPass } from "postprocessing";
+// import BloomEffect from "./node_modules/three/examples/jsm/postprocessing/BloomPass.js";
+// import RenderPass  from "./node_modules/three/examples/jsm/postprocessing/RenderPass.js";
+
+// import EffectComposer from "./node_modules/three/examples/jsm/postprocessing/EffectComposer.js";
+
+// import EffectPass from "./node_modules/three/examples/jsm/postprocessing/EffectPass.js";
+
 
 export default class Game {
   constructor() {
@@ -87,7 +87,7 @@ export default class Game {
     this.anims.forEach(function (anim) {
       options.assets.push(`${game.assetsPath}fbx/anims/${anim}.fbx`);
     });
-    options.assets.push(`${game.assetsPath}fbx/anims/Idle.fbx`);
+    options.assets.push(`${game.assetsPath}fbx/people/Idle.fbx`);
 
     options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainWCollider2.obj`);
     options.assets.push(`${game.assetsPath}TerrainOBJ/TerrainTextureBaked.jpg`);
@@ -146,8 +146,11 @@ export default class Game {
     //this.scene.fog = new THREE.FogExp2(0xfffaaa, 0.0001);
     //this.scene.fog = new THREE.FogExp2(0xffffff, 0.0001);
 
-    const hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x061a31, 0.5);
+
+    const hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x061A31, 0.5);
     this.scene.add(hemiLight);
+
+
 
     //const ambient = new THREE.AmbientLight(0x647687, 0);
     //this.scene.add(ambient);
@@ -196,6 +199,7 @@ export default class Game {
 
     this.initPostProcessing();
 
+
     if ("ontouchstart" in window) {
       window.addEventListener(
         "touchdown",
@@ -217,8 +221,6 @@ export default class Game {
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
     this.composer.addPass(new EffectPass(this.camera, new BloomEffect()));
-    //var afterimagePass = new AfterimagePass();
-    //this.composer.addPass( afterimagePass );
   }
 
   //sound
@@ -234,10 +236,7 @@ export default class Game {
     // });
 
     this.listener = new THREE.AudioListener();
-    var ears = new THREE.Object3D();
-    ears.rotation.y = 180;
-    ears.add(this.listener);
-    this.player.object.add(ears);
+    this.player.object.add(this.listener);
 
     this.radioElement = document.getElementById("azuracast");
     this.radioElement.volume = 0;
@@ -403,9 +402,7 @@ export default class Game {
 
     const objLoader = new OBJLoader(this.manager);
 
-    objLoader.load("assets/TerrainOBJ/TerrainWCollider2.obj", function (
-      object
-    ) {
+    objLoader.load('assets/TerrainOBJ/TerrainWCollider2.obj', function (object) {
       object.scale.set(2, 2, 2);
       object.position.set(0, 0, 0);
       object.rotation.set(0, 160, 0);
@@ -419,12 +416,11 @@ export default class Game {
             game.colliders.push(child);
             // console.log(child.material.visible)
             child.material.visible = false;
+
           } else {
             if (child.name.startsWith("Polygon_Reduction")) {
               console.log(child.name);
-              var texture = new THREE.TextureLoader().load(
-                "assets/TerrainOBJ/TerrainTextureBaked.jpg"
-              );
+              var texture = new THREE.TextureLoader().load("assets/TerrainOBJ/TerrainTextureBaked.jpg");
 
               child.material = new THREE.MeshStandardMaterial();
               //child.material.colour = '#000000',
@@ -433,12 +429,8 @@ export default class Game {
             } else {
               //Speakers
               if (child.name.startsWith("MainSpeaker")) {
-                var woodDiffuse = new THREE.TextureLoader().load(
-                  "assets/TerrainOBJ/WoodAlbedo2.jpg"
-                );
-                var woodRoughness = new THREE.TextureLoader().load(
-                  "assets/TerrainOBJ/WoodRoughness.jpg"
-                );
+                var woodDiffuse = new THREE.TextureLoader().load("assets/TerrainOBJ/WoodAlbedo2.jpg");
+                var woodRoughness = new THREE.TextureLoader().load("assets/TerrainOBJ/WoodRoughness.jpg");
 
                 child.material = new THREE.MeshBasicMaterial();
                 child.material.map = woodDiffuse;
@@ -472,6 +464,7 @@ export default class Game {
           }
           child.receiveShadow = true;
         }
+
       });
     });
 
@@ -551,9 +544,8 @@ export default class Game {
       true
     );
 
-    var orbTexture = new THREE.TextureLoader().load(
-      "assets/images/OrbBump.jpg"
-    );
+
+    var orbTexture = new THREE.TextureLoader().load("assets/images/OrbBump.jpg");
 
     const assetsUrl = "assets/images/";
     const urls = [
@@ -592,6 +584,7 @@ export default class Game {
     //   opacity: 0.1,
     //   depthWrite: false,
     // });
+
 
     var staticRing = new THREE.Mesh(geometry, staticmaterial);
     staticRing.position.set(500, 250, 300);
@@ -972,13 +965,13 @@ export default class Game {
   animate() {
     const game = this;
     const dt = this.clock.getDelta();
-    //console.log(this.player.object.position.x,this.player.object.position.y,this.player.object.position.z)
 
     requestAnimationFrame(function () {
       game.animate();
     });
     //this.composer.render(clock.getDelta());
     this.stats.begin();
+
 
     this.updateRemotePlayers(dt);
 
@@ -1033,6 +1026,7 @@ export default class Game {
     //this.renderer.render(this.scene, this.camera);
 
     this.stats.end();
+    //console.log(this.object.mixer);
   }
 }
 
@@ -1464,7 +1458,7 @@ class Player {
         if (player.initSocket !== undefined) player.initSocket();
       } else {
         const geometry = new THREE.BoxGeometry(10, 30, 10);
-        const material = new THREE.MeshBasicMaterial({ visible: false });
+        const material = new THREE.MeshBasicMaterial({ visible: true });
         const box = new THREE.Mesh(geometry, material);
         box.name = "Collider";
         box.position.set(0, 15, 0);
@@ -1489,16 +1483,17 @@ class Player {
     const clip = this.local
       ? this.animations[name]
       : THREE.AnimationClip.parse(
-          THREE.AnimationClip.toJSON(this.animations[name])
-        );
+        THREE.AnimationClip.toJSON(this.animations[name])
+      );
     const action = this.mixer.clipAction(clip);
     action.time = 0;
     this.mixer.stopAllAction();
     this.actionName = name;
     this.actionTime = Date.now();
-
+    
     action.fadeIn(0.5);
     action.play();
+    //console.log(this.mixer.actionName);
   }
 
   get action() {
