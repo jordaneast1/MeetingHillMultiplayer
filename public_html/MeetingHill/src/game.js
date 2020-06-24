@@ -247,6 +247,9 @@ export default class Game {
   }
 
   initSpeakers() {
+    //this.sounds = {};
+
+
     //AZURACAST
     var geometry = new THREE.BoxGeometry(10, 10, 10);
     var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
@@ -272,7 +275,7 @@ export default class Game {
     }
     this.scene.add(cube);
     this.radioElement.volume = 1;
-
+    //this.sounds.push(positionalAudio);
 
     //SOUND 1
     var cube1 = new THREE.Mesh(geometry, material);
@@ -294,8 +297,10 @@ export default class Game {
     cube1.position.set(-860, -170, -90);
     cube1.add(sound1);
     this.scene.add(cube1);
-    var helper1 = new PositionalAudioHelper(positionalAudio);
-    sound1.add(helper1);
+    //var helper1 = new PositionalAudioHelper(positionalAudio);
+    //sound1.add(helper1);
+    //this.sounds.push(sound1);
+
 
     //SOUND 2
     var cube2 = new THREE.Mesh(geometry, material);
@@ -318,8 +323,10 @@ export default class Game {
     cube2.position.set(-455, -140, 381);
     cube2.add(sound2);
     this.scene.add(cube2);
-    var helper2 = new PositionalAudioHelper(positionalAudio);
-    sound2.add(helper2);
+    // var helper2 = new PositionalAudioHelper(positionalAudio);
+    // sound2.add(helper2);
+    //this.sounds.push(sound2);
+
 
     //SOUND 3
     var cube3 = new THREE.Mesh(geometry, material);
@@ -348,7 +355,7 @@ export default class Game {
       soundWind.setDirectionalCone(180, 180, 1);
       soundWind.play();
       soundWind.setLoop( true );
-      soundWind.setVolume( 1 );
+      soundWind.setVolume( .5 );
 
     });
     var material3 = new THREE.MeshBasicMaterial({ color: 0xff00ff });
@@ -357,8 +364,12 @@ export default class Game {
     cube3.add(sound3);
     cube3.add(soundWind);
     this.scene.add(cube3);
-    var helper3 = new PositionalAudioHelper(positionalAudio);
-    sound3.add(helper3);
+    // var helper3 = new PositionalAudioHelper(positionalAudio);
+    // sound3.add(helper3);
+    //this.sounds.push(soundWind);
+    //this.sounds.push(sound3);
+
+
   }
 
   initJoystick() {
