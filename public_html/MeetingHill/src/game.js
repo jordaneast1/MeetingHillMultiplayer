@@ -235,12 +235,17 @@ export default class Game {
     //   volume: 0.1,
     // });
 
+
+    this.ears = new THREE.Object3D();
+    this.ears.rotation.Y = 90;
+    this.player.object.add(this.ears);
+    
     this.listener = new THREE.AudioListener();
-    this.player.object.add(this.listener);
+    this.ears.add(this.listener);
 
     this.radioElement = document.getElementById("azuracast");
     this.radioElement.volume = 0;
-    //this.radioElement.play();
+    this.radioElement.play();
 
     this.initSpeakers();
   }
