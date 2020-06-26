@@ -57,6 +57,7 @@ export default class Game {
 
     this.container = document.createElement("div");
     this.container.style.height = "100%";
+    this.container.id = "game";
     document.body.appendChild(this.container);
 
     const sfxExt = SFX.supportsAudioType("mp3") ? "mp3" : "ogg";
@@ -239,7 +240,7 @@ export default class Game {
 
 
     this.ears = new THREE.Object3D();
-    this.ears.rotation.Y = 90;
+    this.ears.rotation.Y = 180;
     this.player.object.add(this.ears);
     
     this.listener = new THREE.AudioListener();
@@ -253,7 +254,7 @@ export default class Game {
   }
 
   initSpeakers() {
-    //this.sounds = {};
+    this.sounds = [];
 
 
     //AZURACAST
@@ -271,7 +272,7 @@ export default class Game {
       positionalAudio.setDistanceModel("inverse");
       positionalAudio.setRefDistance(30);
       positionalAudio.setDirectionalCone(180, 180, 1);
-      positionalAudio.setVolume( 7 );
+      positionalAudio.setVolume( 9 );
 
       cube.add(positionalAudio);
       // var helper = new PositionalAudioHelper(positionalAudio);
@@ -282,7 +283,6 @@ export default class Game {
     }
     this.scene.add(cube);
     this.radioElement.volume = 1;
-    //this.sounds.push(positionalAudio);
 
     //SOUND 1
     var cube1 = new THREE.Mesh(geometry, material);
@@ -307,7 +307,7 @@ export default class Game {
     cube1.visible = false;
     //var helper1 = new PositionalAudioHelper(positionalAudio);
     //sound1.add(helper1);
-    //this.sounds.push(sound1);
+    this.sounds.push(sound1);
 
 
     //SOUND 2
@@ -334,7 +334,7 @@ export default class Game {
     cube2.visible = false;
     // var helper2 = new PositionalAudioHelper(positionalAudio);
     // sound2.add(helper2);
-    //this.sounds.push(sound2);
+    this.sounds.push(sound2);
 
 
     //SOUND 3
@@ -376,8 +376,8 @@ export default class Game {
     cube3.visible = false;
     // var helper3 = new PositionalAudioHelper(positionalAudio);
     // sound3.add(helper3);
-    //this.sounds.push(soundWind);
-    //this.sounds.push(sound3);
+    this.sounds.push(soundWind);
+    this.sounds.push(sound3);
 
     //SOUND 4
     var cube4 = new THREE.Mesh(geometry, material);
@@ -403,7 +403,7 @@ export default class Game {
     cube4.visible = false;
     // var helper4 = new PositionalAudioHelper(positionalAudio);
     // sound4.add(helper4);
-    //this.sounds.push(sound4);
+    this.sounds.push(sound4);
 
     //SOUND 5
     var cube5 = new THREE.Mesh(geometry, material);
@@ -429,8 +429,33 @@ export default class Game {
     cube5.visible = false;
     // var helper4 = new PositionalAudioHelper(positionalAudio);
     // sound4.add(helper4);
-    //this.sounds.push(sound4);
+    this.sounds.push(sound5);
 
+    this.sfxvolume = 1;
+
+  }
+
+  setVolume(volume){
+    if (!this.muted){
+    this.sfxvolume = volume;
+    }
+    this.sounds.forEach(setVolPositionalAudio);
+    var vols = this.volumes;
+
+    function setVolPositionalAudio(snd, index) {
+      var volumes = [9,3,1,.5,5,6];
+      var currentvol = volumes[index]*(volume);
+      snd.setVolume(currentvol);
+    }
+  }
+
+  setMute(muted){
+    
+    if (muted){
+      this.setVolume(0);
+    } else {
+      this.setVolume(this.sfxvolume);
+    }
   }
 
   initJoystick() {
@@ -1762,10 +1787,13 @@ class PlayerLocal extends Player {
     this.object.rotateY(this.motion.turn * dt);
 
     //check if inside chat ring
-    if (this.object.position.distanceTo(this.game.ring.position) < 500) {
+    var dist = this.object.position.distanceTo(this.game.ring.position)
+    if (dist < 500) {
       this.inRing = true;
+      this.game.setVolume(0);
     } else {
       this.inRing = false;
+      this.game.setVolume(1);
     }
     this.game.setGlobalChat(this.inRing);
 

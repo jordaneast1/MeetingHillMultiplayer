@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "@babel/runtime": "^7.9.6",
+    "nchan": "^1.0.10",
     "ncp": "^2.0.0",
     "postprocessing": "^6.14.3",
     "regenerator-runtime": "^0.13.5",
